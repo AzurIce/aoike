@@ -17,5 +17,11 @@ def serve_command():
     serve.serve()
 
 
+@cli.command(name='build')
+def build_command():
+    from aoike.commands import build
+    build.build()
+
+
 if __name__ == '__main__':
     cli()
