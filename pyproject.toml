@@ -19,3 +19,6 @@ classifiers = [
 
 [project.scripts]
 aoike = "aoike.__main__:cli"
+
+[project.entry-points."aoike.themes"]
+aoike = "aoike.themes.aoike"
