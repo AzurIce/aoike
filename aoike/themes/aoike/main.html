@@ -1,1 +1,11 @@
-{{content}}
+<html>
+<head>
+    <title>aoike</title>
+    <meta charset="utf-8">
+</head>
+<body>
+    {% for post in posts %}
+    <li><a href="{{ post.url }}">{{ post.basename_without_ext }}</a></li>
+    {% endfor %}
+</body>
+</html>
