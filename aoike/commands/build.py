@@ -8,6 +8,7 @@ import jinja2
 import aoike.theme
 import aoike.utils.files
 from urllib.parse import quote
+import markdown
 
 from aoike.structures.file import File
 from aoike.structures.post import Post

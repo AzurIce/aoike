@@ -2,6 +2,7 @@ import os
 from pathlib import PurePath
 
 import jinja2
+import markdown
 
 import aoike.theme
 from aoike.structures.file import File
@@ -19,12 +20,15 @@ class Post(File):
             os.path.join(os.path.dirname(self.filepath), f'{self.basename_without_ext}.html')
         )
 
-
     def content(self) -> str:
         content = ''
         with open(self.filepath, 'r', encoding='utf-8') as f:
             content = f.read()
-        return content
+        return markdown.markdown(content, extensions=['pymdownx.arithmatex', 'pymdownx.highlight'], extension_configs={
+            'pymdownx.arithmatex': {
+                'generic': True
+            }
+        })
 
     def build(self):
         loader = jinja2.FileSystemLoader(aoike.theme.get_theme_dir('aoike'))
