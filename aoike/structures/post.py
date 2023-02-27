@@ -24,10 +24,16 @@ class Post(File):
         content = ''
         with open(self.filepath, 'r', encoding='utf-8') as f:
             content = f.read()
-        return markdown.markdown(content, extensions=['pymdownx.arithmatex', 'pymdownx.highlight'], extension_configs={
+        return markdown.markdown(content, extensions=[
+            'pymdownx.arithmatex', 'pymdownx.highlight', 'pymdownx.superfences'
+        ], extension_configs={
             'pymdownx.arithmatex': {
-                'generic': True
-            }
+                'generic': True,
+            },
+            'pymdownx.highlight': {
+                'linenums': True,
+                'use_pygments': False,
+            },
         })
 
     def build(self):

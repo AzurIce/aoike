@@ -37,7 +37,7 @@ def build():
     if output.strip():
         aoike.utils.files.write(output.encode('utf-8', errors='xmlcharrefreplace'), os.path.join(DST_DIR, 'index.html'))
 
-    print('Built in %.2f seconds', time.monotonic() - start)
+    print(f'Built in {time.monotonic() - start} seconds')
 
 
 def _get_files() -> Iterable[File]:
