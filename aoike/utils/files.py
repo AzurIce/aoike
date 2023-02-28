@@ -3,6 +3,7 @@ import shutil
 
 
 def write(content: bytes, filepath: str):
+    # print(f'Writing {content} to {filepath}')
     """
     Write content to filepath, making sure any parent directories exist.
     """

@@ -25,7 +25,7 @@ def build():
 
     files = _get_files()
     for file in files:
-        print(f'{type(file)}')
+        print(f'{type(file)}, {file.url=}, {file.filepath=}, {file.rootpath=}')
         file.build()
 
     loader = jinja2.FileSystemLoader(aoike.theme.get_theme_dir('aoike'))
@@ -66,9 +66,30 @@ def _get_files() -> Iterable[File]:
                 print(f'{filename=}')
                 files.append(File(filepath))
 
-            # print(f'{post.filepath=}')
-            # print(f'{post.basename=}')
-            # print(f'{post.basename_without_ext=}')
-            # print(f'{post.dir_uri=}')
-            # print(f'{post.dst_path=}\n')
+
+    theme_dir = aoike.theme.get_theme_dir('aoike')
+    loader = jinja2.FileSystemLoader(theme_dir)
+    env = jinja2.Environment(loader=loader, auto_reload=False)
+
+    def filter(name):
+        patterns = ['.*', '*/.*', '*.py', '*.pyc', '*.html', '*readme*']
+        for pattern in patterns:
+            if fnmatch.fnmatch(name.lower(), pattern):
+                return False
+        return True
+
+    for path in env.list_templates(filter_func=filter):
+        # Theme files do not override docs_dir files
+        path = PurePath(path).as_posix()
+        print(f'{path=}')
+        if path not in [file.url for file in files]:
+            if os.path.isfile(os.path.join(theme_dir, path)):
+                files.append(File(os.path.join(theme_dir, path), theme_dir))
+
+        # print(f'{post.filepath=}')
+        # print(f'{post.basename=}')
+        # print(f'{post.basename_without_ext=}')
+        # print(f'{post.dir_uri=}')
+        # print(f'{post.dst_path=}\n')
+
     return files
