@@ -1,72 +1,97 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>aoike</title>
-    <meta charset="utf-8">
-    <!--  Katex  -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css"
-          integrity="sha384-vKruj+a13U8yHIkAyGgK1J3ArTLzrFGBbBc0tDp4ad/EyewESeXE/Iv67Aj8gKZ0" crossorigin="anonymous">
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.js"
-            integrity="sha384-PwRUT/YqbnEjkZO0zZxNqcxACrXe+j766U2amXcgMg5457rve2Y7I6ZJSm2A0mS4"
-            crossorigin="anonymous"></script>
-    <!-- To automatically render math in text elements, include the auto-render extension: -->
-    <!--    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"-->
-    <!--        onload="renderMathInElement(document.body);"></script>-->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-light.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
-    <!-- and it's easy to individually load additional languages -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/go.min.js"></script>
-    <script>hljs.highlightAll();</script>
+    {%- block meta %}
+        <meta charset="utf-8">
+    {%- endblock %}
 
-    <link rel="stylesheet" href="{{rel_path}}/css/main.css">
+    {%- block title %}
+        <title>aoike - {% if meta.title %}{{ meta.title }}{% endif %}</title>
+    {%- endblock %}
 
-    <script>
-        (function () {
-            'use strict';
-
-            var katexMath = (function () {
-                var maths = document.querySelectorAll('.arithmatex'),
-                    tex;
-
-                for (var i = 0; i < maths.length; i++) {
-                    tex = maths[i].textContent || maths[i].innerText;
-                    if (tex.startsWith('\\(') && tex.endsWith('\\)')) {
-                        katex.render(tex.slice(2, -2), maths[i], {'displayMode': false});
-                    } else if (tex.startsWith('\\[') && tex.endsWith('\\]')) {
-                        katex.render(tex.slice(2, -2), maths[i], {'displayMode': true});
-                    }
-                }
-            });
-
+    {%- block styles %}
+        <!--  Katex  -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css"
+              integrity="sha384-vKruj+a13U8yHIkAyGgK1J3ArTLzrFGBbBc0tDp4ad/EyewESeXE/Iv67Aj8gKZ0"
+              crossorigin="anonymous">
+        <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.js"
+                integrity="sha384-PwRUT/YqbnEjkZO0zZxNqcxACrXe+j766U2amXcgMg5457rve2Y7I6ZJSm2A0mS4"
+                crossorigin="anonymous"></script>
+        <script>
             (function () {
-                var onReady = function onReady(fn) {
-                    if (document.addEventListener) {
-                        document.addEventListener("DOMContentLoaded", fn);
-                    } else {
-                        document.attachEvent("onreadystatechange", function () {
-                            if (document.readyState === "interactive") {
-                                fn();
-                            }
-                        });
-                    }
-                };
+                'use strict';
 
-                onReady(function () {
-                    if (typeof katex !== "undefined") {
-                        katexMath();
+                var katexMath = (function () {
+                    var maths = document.querySelectorAll('.arithmatex'),
+                        tex;
+
+                    for (var i = 0; i < maths.length; i++) {
+                        tex = maths[i].textContent || maths[i].innerText;
+                        if (tex.startsWith('\\(') && tex.endsWith('\\)')) {
+                            katex.render(tex.slice(2, -2), maths[i], {'displayMode': false});
+                        } else if (tex.startsWith('\\[') && tex.endsWith('\\]')) {
+                            katex.render(tex.slice(2, -2), maths[i], {'displayMode': true});
+                        }
                     }
                 });
-            })();
 
-        }());
+                (function () {
+                    var onReady = function onReady(fn) {
+                        if (document.addEventListener) {
+                            document.addEventListener("DOMContentLoaded", fn);
+                        } else {
+                            document.attachEvent("onreadystatechange", function () {
+                                if (document.readyState === "interactive") {
+                                    fn();
+                                }
+                            });
+                        }
+                    };
 
-    </script>
+                    onReady(function () {
+                        if (typeof katex !== "undefined") {
+                            katexMath();
+                        }
+                    });
+                })();
+
+            }());
+
+        </script>
+
+        <!-- highlight.js -->
+        <link rel="stylesheet"
+              href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-light.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/go.min.js"></script>
+        <script>hljs.highlightAll();</script>
+
+        <link rel="stylesheet" href="{{ rel_rootpath }}/css/main.css">
+    {%- endblock %}
 </head>
 <body>
-{{meta.title}}
-{{meta.date}}
-{{meta.tags}}
 
-{{content}}
+<!-- navbar -->
+<div>
+    <a href="{{ rel_rootpath }}/index.html">主页</a>
+</div>
+
+
+{{ meta.title }}<br/>
+{{ meta.date }}<br/>
+{{ meta.tags }}<br/>
+
+<div>
+    {{ content }}
+</div>
+
+<footer>
+    {%- block footer %}
+        <hr>
+        <p>Copyright &copy; 2022 Azur冰弦</p>
+        <p>Built with<a href="https://github.com/AzurIce/aoike">Aoike</a>.</p>
+    {%- endblock %}
+</footer>
+
 </body>
 </html>
