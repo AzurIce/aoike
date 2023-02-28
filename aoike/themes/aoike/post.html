@@ -66,6 +66,12 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/go.min.js"></script>
         <script>hljs.highlightAll();</script>
 
+        <!-- mermaid.js -->
+        <script type="module">
+            import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+            mermaid.initialize({startOnLoad: true});
+        </script>
+
         <link rel="stylesheet" href="{{ rel_rootpath }}/css/main.css">
     {%- endblock %}
 </head>

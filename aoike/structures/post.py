@@ -3,6 +3,7 @@ from typing import Any, Dict
 
 import jinja2
 import markdown
+import pymdownx.superfences
 
 import aoike.theme
 from aoike.structures.file import File
@@ -53,6 +54,17 @@ class Post(File):
                 'linenums': True,
                 'use_pygments': False,
             },
+            'pymdownx.extra': {
+                'pymdownx.superfences': {
+                    'custom_fences': [
+                        {
+                            'name': 'mermaid',
+                            'class': 'mermaid',
+                            'format': pymdownx.superfences.fence_div_format
+                        }
+                    ]
+                }
+            }
         })
 
     def build(self):
@@ -61,7 +73,7 @@ class Post(File):
         env = jinja2.Environment(loader=loader, auto_reload=False)
         template = env.get_template('post.html')
 
-        output = template.render({'meta': self.meta, 'content': self.rendered_content, 'rel_path': self.rel_rootpath})
+        output = template.render({'meta': self.meta, 'content': self.rendered_content, 'rel_rootpath': self.rel_rootpath})
 
         if output.strip():
             files.write(output.encode('utf-8', errors='xmlcharrefreplace'), self.dst_path)
