@@ -17,7 +17,9 @@ class Post(File):
     @property
     def url(self) -> str:
         return os.path.normpath(
-            os.path.join(os.path.dirname(self.filepath), f'{self.basename_without_ext}.html')
+            os.path.join(
+                os.path.relpath(os.path.dirname(self.filepath), self.rootpath),
+                f'{self.basename_without_ext}.html')
         )
 
     _document = ''
