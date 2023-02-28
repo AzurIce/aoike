@@ -22,6 +22,11 @@ def write_str(content: str, filepath: str):
         f.write(content)
 
 
+def read_str(filepath: str) -> str:
+    with open(filepath, 'r', encoding='utf-8') as f:
+        return f.read()
+
+
 def write_file(content: bytes, filepath: str):
     """
     Write content to filepath, making sure any parent directories exist.

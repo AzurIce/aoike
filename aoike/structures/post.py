@@ -6,7 +6,9 @@ import markdown
 
 import aoike.theme
 from aoike.structures.file import File
-from aoike.utils import files
+from aoike.utils import files, meta
+
+from typing import Tuple, Any, Dict
 
 
 class Post(File):
@@ -20,12 +22,29 @@ class Post(File):
             os.path.join(os.path.dirname(self.filepath), f'{self.basename_without_ext}.html')
         )
 
+    _document = ''
+    @property
+    def document(self) -> str:
+        if self._document:
+            return self._document
+        else:
+            with open(self.filepath, 'r', encoding='utf-8') as f:
+                self._document = f.read()
+            return self._document
+
+
+    @property
+    def meta(self) -> Dict[str, Any]:
+        return meta.split_meta(self.document)[0]
+
+    @property
     def content(self) -> str:
-        content = ''
-        with open(self.filepath, 'r', encoding='utf-8') as f:
-            content = f.read()
-        return markdown.markdown(content, extensions=[
-            'pymdownx.arithmatex', 'pymdownx.highlight', 'pymdownx.superfences'
+        return meta.split_meta(self.document)[1]
+
+    @property
+    def rendered_content(self) -> str:
+        return markdown.markdown(self.content, extensions=[
+            'pymdownx.arithmatex', 'pymdownx.highlight', 'pymdownx.extra'
         ], extension_configs={
             'pymdownx.arithmatex': {
                 'generic': True,
@@ -41,7 +60,7 @@ class Post(File):
         env = jinja2.Environment(loader=loader, auto_reload=False)
         template = env.get_template('post.html')
 
-        output = template.render({'content': self.content()})
+        output = template.render({'meta': self.meta, 'content': self.rendered_content})
 
         if output.strip():
             files.write(output.encode('utf-8', errors='xmlcharrefreplace'), self.dst_path)

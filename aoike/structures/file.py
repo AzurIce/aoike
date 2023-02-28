@@ -31,12 +31,12 @@ class File:
     def __init__(self, filepath: str):
         self.filepath = PurePath(filepath).as_posix()
 
-    def content(self) -> bytes:
-        content = ''
+    @property
+    def document(self) -> bytes:
+        document = ''
         with open(self.filepath, 'rb') as f:
-            content = f.read()
-        return content
+            document = f.read()
+        return document
 
     def build(self):
-        content = self.content()
-        files.write(content, self.dst_path)
+        files.write(self.document, self.dst_path)
