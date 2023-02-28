@@ -64,11 +64,14 @@
               href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-light.min.css">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/go.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/shell.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/x86asm.min.js"></script>
         <script>hljs.highlightAll();</script>
 
         <!-- mermaid.js -->
         <script type="module">
             import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+
             mermaid.initialize({startOnLoad: true});
         </script>
 
@@ -78,16 +81,19 @@
 <body>
 
 <!-- navbar -->
-<div>
+<div class="navbar">
     <a href="{{ rel_rootpath }}/index.html">主页</a>
 </div>
 
-
-{{ meta.title }}<br/>
-{{ meta.date }}<br/>
-{{ meta.tags }}<br/>
-
-<div>
+<!-- content -->
+<div class="content">
+    <h1>{{ meta.title }}</h1>
+    {{ meta.date }}<br/>
+    <div style="display: flex; gap: 2px;">
+        Tags: {% for tag in meta.tags %}
+            <span>{{ tag }}</span>
+        {% endfor %}
+    </div>
     {{ content }}
 </div>
 

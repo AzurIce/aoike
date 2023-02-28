@@ -1,5 +1,35 @@
 @import "font.css";
 
+.navbar {
+    display: flex;
+    align-items: center;
+    background: white;
+    height: 34px;
+    padding: 8px;
+    border-bottom: 1px solid #cccccc;
+    box-shadow: 0 0 0.2rem #0000001a, 0 0.2rem 0.4rem #0003;
+}
+
+.content {
+    padding: 20px
+}
+
+a {
+    color: black;
+}
+
+a:hover {
+    color: cornflowerblue;
+}
+
+body {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+}
+
 html {
     font-family: 'LXGW Bright', Fira Mono, Source Code Pro, Menlo, Consolas, Monaco, monospace;
 }
