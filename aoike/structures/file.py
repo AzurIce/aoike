@@ -3,10 +3,10 @@ from pathlib import PurePath
 
 from aoike.utils import files
 
-
 SRC_DIR = './'
 POSTS_DIR = 'posts'
 DST_DIR = 'site'
+
 
 class File:
     filepath: str
@@ -41,6 +41,7 @@ class File:
         self.rootpath = PurePath(os.path.normpath(os.path.abspath(rootpath))).as_posix()
 
     _document = ''
+
     @property
     def document(self) -> bytes:
         document = ''

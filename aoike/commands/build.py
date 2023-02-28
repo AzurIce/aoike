@@ -66,7 +66,6 @@ def _get_files() -> Iterable[File]:
                 print(f'{filename=}')
                 files.append(File(filepath))
 
-
     theme_dir = aoike.theme.get_theme_dir('aoike')
     loader = jinja2.FileSystemLoader(theme_dir)
     env = jinja2.Environment(loader=loader, auto_reload=False)

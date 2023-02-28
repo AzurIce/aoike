@@ -1,5 +1,5 @@
 import os
-from pathlib import PurePath
+from typing import Any, Dict
 
 import jinja2
 import markdown
@@ -7,8 +7,6 @@ import markdown
 import aoike.theme
 from aoike.structures.file import File
 from aoike.utils import files, meta
-
-from typing import Tuple, Any, Dict
 
 
 class Post(File):
@@ -23,6 +21,7 @@ class Post(File):
         )
 
     _document = ''
+
     @property
     def document(self) -> str:
         if self._document:
@@ -31,7 +30,6 @@ class Post(File):
             with open(self.filepath, 'r', encoding='utf-8') as f:
                 self._document = f.read()
             return self._document
-
 
     @property
     def meta(self) -> Dict[str, Any]:
