@@ -11,7 +11,7 @@ DST_DIR = 'site'
 class File:
     filepath: str
     rootpath: str
-    """Relative path from SRC_DIR, always separated with '/'"""
+    "Absolute path, always separated with '/'"
 
     @property
     def basename(self) -> str:
@@ -29,9 +29,16 @@ class File:
     def dst_path(self) -> str:
         return os.path.join(DST_DIR, self.url)
 
+    @property
+    def rel_rootpath(self) -> str:
+        p = PurePath(os.path.relpath(self.rootpath, os.path.dirname(self.filepath))).as_posix()
+        if not p.endswith('/'):
+            return f'{p}/'
+        return p
+
     def __init__(self, filepath: str, rootpath: str = './'):
-        self.filepath = PurePath(filepath).as_posix()
-        self.rootpath = PurePath(rootpath).as_posix()
+        self.filepath = PurePath(os.path.normpath(os.path.abspath(filepath))).as_posix()
+        self.rootpath = PurePath(os.path.normpath(os.path.abspath(rootpath))).as_posix()
 
     _document = ''
     @property
@@ -45,4 +52,5 @@ class File:
             return self._document
 
     def build(self):
+        print(f'Building File: {self.filepath=}, {self.rel_rootpath=}')
         files.write(self.document, self.dst_path)

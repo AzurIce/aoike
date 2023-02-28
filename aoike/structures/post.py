@@ -56,11 +56,12 @@ class Post(File):
         })
 
     def build(self):
+        print(f'Building Post: {self.filepath=}, {self.rel_rootpath=}')
         loader = jinja2.FileSystemLoader(aoike.theme.get_theme_dir('aoike'))
         env = jinja2.Environment(loader=loader, auto_reload=False)
         template = env.get_template('post.html')
 
-        output = template.render({'meta': self.meta, 'content': self.rendered_content})
+        output = template.render({'meta': self.meta, 'content': self.rendered_content, 'rel_path': self.rel_rootpath})
 
         if output.strip():
             files.write(output.encode('utf-8', errors='xmlcharrefreplace'), self.dst_path)

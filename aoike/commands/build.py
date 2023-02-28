@@ -25,7 +25,7 @@ def build():
 
     files = _get_files()
     for file in files:
-        print(f'{type(file)}, {file.url=}, {file.filepath=}, {file.rootpath=}')
+        # print(f'{type(file)}, {file.url=}, {file.filepath=}, {file.rootpath=}')
         file.build()
 
     loader = jinja2.FileSystemLoader(aoike.theme.get_theme_dir('aoike'))
@@ -81,7 +81,7 @@ def _get_files() -> Iterable[File]:
     for path in env.list_templates(filter_func=filter):
         # Theme files do not override docs_dir files
         path = PurePath(path).as_posix()
-        print(f'{path=}')
+        # print(f'{path=}')
         if path not in [file.url for file in files]:
             if os.path.isfile(os.path.join(theme_dir, path)):
                 files.append(File(os.path.join(theme_dir, path), theme_dir))
