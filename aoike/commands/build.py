@@ -1,15 +1,13 @@
 import fnmatch
 import os
-import posixpath
 import time
 from pathlib import PurePath
 from typing import Iterable
+
 import jinja2
+
 import aoike.theme
 import aoike.utils.files
-from urllib.parse import quote
-import markdown
-
 from aoike.structures.file import File
 from aoike.structures.post import Post
 
