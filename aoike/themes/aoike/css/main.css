@@ -1,4 +1,6 @@
+@import "variables.css";
 @import "font.css";
+@import "highlight.css";
 
 .navbar {
     font-size: 115%;
@@ -47,11 +49,11 @@ body {
 html {
     height: 100%;
     overflow-x: hidden;
-    font-family: 'LXGW Bright', Fira Mono, Source Code Pro, Menlo, Consolas, Monaco, monospace;
+    font-family: var(--font-family)
 }
 
 code {
-    font-family: 'JetBrainsMono Nerd Font Mono', Fira Mono, Source Code Pro, Menlo, Consolas, 'LXGW Bright', Monaco, monospace;
+    font-family: var(--font-family-mono)
 }
 
 footer {

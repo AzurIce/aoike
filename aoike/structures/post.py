@@ -54,7 +54,7 @@ class Post(File):
     def rendered_content(self) -> str:
         return markdown.markdown(self.content, extensions=[
             'pymdownx.arithmatex', 'pymdownx.highlight', 'pymdownx.extra',
-            'pymdownx.saneheaders', 'pymdownx.magiclink',
+            'pymdownx.saneheaders', 'pymdownx.magiclink', 'pymdownx.tasklist',
             'nl2br'
         ], extension_configs={
             'pymdownx.arithmatex': {
@@ -62,7 +62,7 @@ class Post(File):
             },
             'pymdownx.highlight': {
                 'linenums': True,
-                'use_pygments': False,
+                'use_pygments': True,
             },
             'pymdownx.extra': {
                 'pymdownx.superfences': {
