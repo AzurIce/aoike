@@ -54,7 +54,8 @@ class Post(File):
     def rendered_content(self) -> str:
         return markdown.markdown(self.content, extensions=[
             'pymdownx.arithmatex', 'pymdownx.highlight', 'pymdownx.extra',
-            'pymdownx.saneheaders', 'pymdownx.magiclink'
+            'pymdownx.saneheaders', 'pymdownx.magiclink',
+            'nl2br'
         ], extension_configs={
             'pymdownx.arithmatex': {
                 'generic': True,
