@@ -1,17 +1,28 @@
 @import "font.css";
 
 .navbar {
+    font-size: 115%;
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    background: white;
-    height: 34px;
-    padding: 8px;
+
+    width: 100%;
+    height: 3.5rem;
+    padding: 10px;
     border-bottom: 1px solid #cccccc;
+
+    background: white;
     box-shadow: 0 0 0.2rem #0000001a, 0 0.2rem 0.4rem #0003;
+    box-sizing: border-box;
 }
 
 .content {
-    padding: 20px
+    width: 100%;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-sizing: border-box;
 }
 
 a {
@@ -23,17 +34,38 @@ a:hover {
 }
 
 body {
-    height: 100%;
-    width: 100%;
+    position: relative;
     display: flex;
     flex-direction: column;
+    width: 100%;
+    min-height: 100%;
+    justify-content: stretch;
+    align-items: center;
     margin: 0;
 }
 
 html {
+    height: 100%;
+    overflow-x: hidden;
     font-family: 'LXGW Bright', Fira Mono, Source Code Pro, Menlo, Consolas, Monaco, monospace;
 }
 
 code {
     font-family: 'JetBrainsMono Nerd Font Mono', Fira Mono, Source Code Pro, Menlo, Consolas, 'LXGW Bright', Monaco, monospace;
+}
+
+footer {
+    width: 100%;
+    text-align: center;
+}
+
+.post-card {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+
+    border-radius: 0.25rem;
+    border: 1px solid #cccccc;
 }
