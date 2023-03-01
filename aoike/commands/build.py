@@ -32,7 +32,7 @@ def build():
     env = jinja2.Environment(loader=loader, auto_reload=False)
     template = env.get_template('main.html')
 
-    output = template.render({'posts': [file for file in files if isinstance(file, Post)]})
+    output = template.render({'posts': [file for file in files if isinstance(file, Post)], 'rel_rootpath': './'})
 
     if output.strip():
         aoike.utils.files.write(output.encode('utf-8', errors='xmlcharrefreplace'), os.path.join(DST_DIR, 'index.html'))
