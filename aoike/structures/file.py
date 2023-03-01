@@ -32,8 +32,8 @@ class File:
     @property
     def rel_rootpath(self) -> str:
         p = PurePath(os.path.relpath(self.rootpath, os.path.dirname(self.filepath))).as_posix()
-        if not p.endswith('/'):
-            return f'{p}/'
+        # if not p.endswith('/'):
+        #     return f'{p}/'
         return p
 
     def __init__(self, filepath: str, rootpath: str = './'):

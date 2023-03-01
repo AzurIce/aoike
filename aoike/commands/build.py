@@ -16,12 +16,26 @@ POSTS_DIR = 'posts'
 DST_DIR = 'site'
 
 
+def _get_post_key(post: Post):
+    return post.meta['date'], post.meta['title']
+
+
 def build():
     """Perform a full site build."""
     start = time.monotonic()
     aoike.utils.files.clean_directory(DST_DIR)
 
     files = _get_files()
+    posts = [file for file in files if isinstance(file, Post)]
+    print(f'Before sort: {posts}')
+    list.sort(posts, key=_get_post_key, reverse=True)
+    print(f'After sort: {posts}')
+    files = [file for file in files if file not in posts]
+
+    for post in posts:
+        # print(f'{type(file)}, {file.url=}, {file.filepath=}, {file.rootpath=}')
+        post.build()
+
     for file in files:
         # print(f'{type(file)}, {file.url=}, {file.filepath=}, {file.rootpath=}')
         file.build()
@@ -30,7 +44,7 @@ def build():
     env = jinja2.Environment(loader=loader, auto_reload=False)
     template = env.get_template('main.html')
 
-    output = template.render({'posts': [file for file in files if isinstance(file, Post)], 'rel_rootpath': './'})
+    output = template.render({'posts': posts, 'rel_rootpath': '.'})
 
     if output.strip():
         aoike.utils.files.write(output.encode('utf-8', errors='xmlcharrefreplace'), os.path.join(DST_DIR, 'index.html'))
@@ -38,7 +52,7 @@ def build():
     print(f'Built in {time.monotonic() - start} seconds')
 
 
-def _get_files() -> Iterable[File]:
+def _get_files() -> list[File]:
     files = []
 
     for source_dir, dirnames, filenames in os.walk(POSTS_DIR, followlinks=True):

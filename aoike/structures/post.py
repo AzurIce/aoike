@@ -15,6 +15,9 @@ class Post(File):
     A Aoike Post object.
     """
 
+    def __repr__(self):
+        return f'{self.meta["date"]=}, {self.meta["title"]=}'
+
     @property
     def url(self) -> str:
         return os.path.normpath(
@@ -23,11 +26,12 @@ class Post(File):
                 f'{self.basename_without_ext}.html')
         )
 
-    _document = ''
+    _document = None
+    _meta = None
 
     @property
     def document(self) -> str:
-        if self._document:
+        if self._document is not None:
             return self._document
         else:
             with open(self.filepath, 'r', encoding='utf-8') as f:
@@ -36,7 +40,11 @@ class Post(File):
 
     @property
     def meta(self) -> Dict[str, Any]:
-        return meta.split_meta(self.document)[0]
+        if self._document is not None:
+            return self._meta
+        else:
+            self._meta = meta.split_meta(self.document)[0]
+            return self._meta
 
     @property
     def content(self) -> str:
@@ -45,7 +53,8 @@ class Post(File):
     @property
     def rendered_content(self) -> str:
         return markdown.markdown(self.content, extensions=[
-            'pymdownx.arithmatex', 'pymdownx.highlight', 'pymdownx.extra'
+            'pymdownx.arithmatex', 'pymdownx.highlight', 'pymdownx.extra',
+            'pymdownx.saneheaders', 'pymdownx.magiclink'
         ], extension_configs={
             'pymdownx.arithmatex': {
                 'generic': True,
@@ -65,7 +74,7 @@ class Post(File):
                     ]
                 }
             }
-        })
+        }, output_format="html")
 
     def build(self):
         print(f'Building Post: {self.filepath=}, {self.rel_rootpath=}')
