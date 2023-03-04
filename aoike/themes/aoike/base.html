@@ -2,82 +2,82 @@
 <html lang="en">
 <head>
     {%- block meta %}
-    <meta charset="utf-8">
+        <meta charset="utf-8">
     {%- endblock %}
 
     {%- block title %}
-    <title>aoike</title>
+        <title>aoike</title>
     {%- endblock %}
 
     {%- block styles %}
-    <!--  Katex  -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css"
-          integrity="sha384-vKruj+a13U8yHIkAyGgK1J3ArTLzrFGBbBc0tDp4ad/EyewESeXE/Iv67Aj8gKZ0"
-          crossorigin="anonymous">
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.js"
-            integrity="sha384-PwRUT/YqbnEjkZO0zZxNqcxACrXe+j766U2amXcgMg5457rve2Y7I6ZJSm2A0mS4"
-            crossorigin="anonymous"></script>
-    <script>
-        (function () {
-            'use strict';
-
-            var katexMath = (function () {
-                var maths = document.querySelectorAll('.arithmatex'),
-                    tex;
-
-                for (var i = 0; i < maths.length; i++) {
-                    tex = maths[i].textContent || maths[i].innerText;
-                    if (tex.startsWith('\\(') && tex.endsWith('\\)')) {
-                        katex.render(tex.slice(2, -2), maths[i], {'displayMode': false});
-                    } else if (tex.startsWith('\\[') && tex.endsWith('\\]')) {
-                        katex.render(tex.slice(2, -2), maths[i], {'displayMode': true});
-                    }
-                }
-            });
-
+        <!--  Katex  -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css"
+              integrity="sha384-vKruj+a13U8yHIkAyGgK1J3ArTLzrFGBbBc0tDp4ad/EyewESeXE/Iv67Aj8gKZ0"
+              crossorigin="anonymous">
+        <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.js"
+                integrity="sha384-PwRUT/YqbnEjkZO0zZxNqcxACrXe+j766U2amXcgMg5457rve2Y7I6ZJSm2A0mS4"
+                crossorigin="anonymous"></script>
+        <script>
             (function () {
-                var onReady = function onReady(fn) {
-                    if (document.addEventListener) {
-                        document.addEventListener("DOMContentLoaded", fn);
-                    } else {
-                        document.attachEvent("onreadystatechange", function () {
-                            if (document.readyState === "interactive") {
-                                fn();
-                            }
-                        });
-                    }
-                };
+                'use strict';
 
-                onReady(function () {
-                    if (typeof katex !== "undefined") {
-                        katexMath();
+                var katexMath = (function () {
+                    var maths = document.querySelectorAll('.arithmatex'),
+                        tex;
+
+                    for (var i = 0; i < maths.length; i++) {
+                        tex = maths[i].textContent || maths[i].innerText;
+                        if (tex.startsWith('\\(') && tex.endsWith('\\)')) {
+                            katex.render(tex.slice(2, -2), maths[i], {'displayMode': false});
+                        } else if (tex.startsWith('\\[') && tex.endsWith('\\]')) {
+                            katex.render(tex.slice(2, -2), maths[i], {'displayMode': true});
+                        }
                     }
                 });
-            })();
 
-        }());
+                (function () {
+                    var onReady = function onReady(fn) {
+                        if (document.addEventListener) {
+                            document.addEventListener("DOMContentLoaded", fn);
+                        } else {
+                            document.attachEvent("onreadystatechange", function () {
+                                if (document.readyState === "interactive") {
+                                    fn();
+                                }
+                            });
+                        }
+                    };
 
-    </script>
+                    onReady(function () {
+                        if (typeof katex !== "undefined") {
+                            katexMath();
+                        }
+                    });
+                })();
 
-    <!-- highlight.js -->
-<!--    <link rel="stylesheet"-->
-<!--          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-light.min.css">-->
-<!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>-->
-<!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/go.min.js"></script>-->
-<!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/shell.min.js"></script>-->
-<!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/x86asm.min.js"></script>-->
-<!--    <script>hljs.highlightAll();</script>-->
-<!--    <link rel="stylesheet" href="{{ rel_rootpath }}/css/highlight-default.css">-->
-    <link rel="stylesheet" href="{{ rel_rootpath }}/css/highlight-one-dark.css">
+            }());
 
-    <!-- mermaid.js -->
-    <script type="module">
-        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        </script>
 
-        mermaid.initialize({startOnLoad: true});
-    </script>
+        <!-- highlight.js -->
+        <!--    <link rel="stylesheet"-->
+        <!--          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-light.min.css">-->
+        <!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>-->
+        <!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/go.min.js"></script>-->
+        <!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/shell.min.js"></script>-->
+        <!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/x86asm.min.js"></script>-->
+        <!--    <script>hljs.highlightAll();</script>-->
+        <!--    <link rel="stylesheet" href="{{ rel_rootpath }}/css/highlight-default.css">-->
+        <link rel="stylesheet" href="{{ rel_rootpath }}/css/highlight-one-dark.css">
 
-    <link rel="stylesheet" href="{{ rel_rootpath }}/css/main.css">
+        <!-- mermaid.js -->
+        <script type="module">
+            import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+
+            mermaid.initialize({startOnLoad: true});
+        </script>
+
+        <link rel="stylesheet" href="{{ rel_rootpath }}/css/main.css">
     {%- endblock %}
 </head>
 <body>
@@ -92,6 +92,33 @@
     {% endblock %}
 </div>
 
+<div style="display: flex; gap: 8px; margin-top: 20px;">
+    <a href="https://github.com/AzurIce/azurice.github.io/actions/workflows/aoike-gh-pages.yml">
+        <img alt="GitHub Actions"
+             src="https://img.shields.io/github/actions/workflow/status/AzurIce/azurice.github.io/aoike-gh-pages.yml"/>
+    </a>
+
+    <a href="https://github.com/AzurIce/azurice.github.io">
+        <img alt="Lines of code" src="https://img.shields.io/tokei/lines/github/AzurIce/azurice.github.io">
+    </a>
+
+    <a href="https://github.com/AzurIce/azurice.github.io/commits/aoike">
+        <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/AzurIce/azurice.github.io">
+    </a>
+</div>
+
+<div style="display: flex; gap: 8px;">
+    <a href="https://github.com/AzurIce">
+        <img alt="GitHub followers" src="https://img.shields.io/github/followers/AzurIce?style=social">
+    </a>
+    <a href="https://github.com/AzurIce/azurice.github.io">
+        <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/AzurIce/azurice.github.io?style=social">
+    </a>
+    <a href="https://github.com/AzurIce/azurice.github.io">
+        <img alt="GitHub watchers" src="https://img.shields.io/github/watchers/AzurIce/azurice.github.io?style=social">
+    </a>
+</div>
+
 <div class="content">
     {% block content %}
 
@@ -100,25 +127,25 @@
 
 <footer>
     {%- block footer %}
-    <hr>
-    <p>Copyright &copy; 2022 Azur冰弦</p>
-    <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=11010502048910">
-        <img alt="备案图标" src="{{ rel_rootpath }}/images/备案图标.png" style=""/>
-        <span style="margin-left: 5px;">京公网安备 11010502048910号</span>
-    </a>
-    |
-    <a target="_blank" href="https://beian.miit.gov.cn/"
-       style="display:inline;text-decoration:none;height:20px;line-height:20px;">
-        京ICP备2022004147号-1
-    </a>
-    <a target="_blank" href="https://www.upyun.com/?utm_source=lianmeng&utm_medium=referral">
-        <div style="display:flex; align-items:center; justify-content: center; padding: auto 0;">
-            本网站由
-            <img height="30" alt="upyun_logo" src="{{ rel_rootpath }}/images/又拍云_logo2.png"/>
-            提供CDN加速/云存储服务
-        </div>
-    </a>
-    <p>Built with <a href="https://github.com/AzurIce/aoike">Aoike</a>.</p>
+        <hr>
+        <p>Copyright &copy; 2022 Azur冰弦</p>
+        <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=11010502048910">
+            <img alt="备案图标" src="{{ rel_rootpath }}/images/备案图标.png" style=""/>
+            <span style="margin-left: 5px;">京公网安备 11010502048910号</span>
+        </a>
+        |
+        <a target="_blank" href="https://beian.miit.gov.cn/"
+           style="display:inline;text-decoration:none;height:20px;line-height:20px;">
+            京ICP备2022004147号-1
+        </a>
+        <a target="_blank" href="https://www.upyun.com/?utm_source=lianmeng&utm_medium=referral">
+            <div style="display:flex; align-items:center; justify-content: center; padding: auto 0;">
+                本网站由
+                <img height="30" alt="upyun_logo" src="{{ rel_rootpath }}/images/又拍云_logo2.png"/>
+                提供CDN加速/云存储服务
+            </div>
+        </a>
+        <p>Built with <a href="https://github.com/AzurIce/aoike">Aoike</a>.</p>
     {%- endblock %}
 </footer>
 </body>
