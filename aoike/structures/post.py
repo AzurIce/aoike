@@ -1,10 +1,14 @@
 import os
+import re
+from io import StringIO
 from pathlib import PurePath
 from typing import Any, Dict
 
 import jinja2
 import markdown
 import pymdownx.superfences
+from _elementtree import Element
+from markdown import Markdown
 
 import aoike.theme
 from aoike.structures.file import File
@@ -50,6 +54,29 @@ class Post(File):
             with open(self.filepath, 'r', encoding='utf-8') as f:
                 self._document = f.read()
             return self._document
+
+    @property
+    def unmarked_content(self):
+        def unmark_element(element: Element, stream=None):
+            if stream is None:
+                stream = StringIO()
+            if element.text:
+                stream.write(element.text)
+            for sub in element:
+                unmark_element(sub, stream)
+            if element.tail:
+                stream.write(element.tail)
+            return stream.getvalue()
+
+        Markdown.output_formats["plain"] = unmark_element
+        __md = Markdown(output_format="plain")
+        __md.stripTopLevelTags = False
+
+        content = self.content
+        content = re.sub(r'\!\[.*?\]\(.*?\)', '\\0', content, 0, re.MULTILINE)
+        content = re.sub(r'<img.*?/>', '\\0', content)
+
+        return __md.convert(content)
 
     @property
     def meta(self) -> Dict[str, Any]:

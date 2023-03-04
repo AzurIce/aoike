@@ -6,5 +6,8 @@
             <span>Tags: {{ post.meta.tags }}</span>
 {#            <span>File: {{ post.basename_without_ext }}</span>#}
         </div>
+        <div style="color: #777777">
+            {{ post.unmarked_content | truncate(200) }}
+        </div>
     </div>
 {%- endmacro %}
