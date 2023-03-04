@@ -85,7 +85,10 @@
 <div class="navbar">
     <span>Aoike 青之池</span>
     {% block navbar %}
-    <a href="{{ rel_rootpath }}/index.html">主页</a>
+        <div style="display: flex; gap: 20px;">
+            <a href="{{ rel_rootpath }}/index.html">主页</a>
+            <a href="{{ rel_rootpath }}/categories.html">分类</a>
+        </div>
     {% endblock %}
 </div>
 

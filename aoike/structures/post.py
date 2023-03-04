@@ -1,4 +1,5 @@
 import os
+from pathlib import PurePath
 from typing import Any, Dict
 
 import jinja2
@@ -16,15 +17,27 @@ class Post(File):
     """
 
     def __repr__(self):
-        return f'{self.meta["date"]=}, {self.meta["title"]=}'
+        return f'<Post: {self.category=}, {self.url=}>'
+
+    # def __repr__(self):
+    #     return super().__repr__() + '\n' \
+    #         f'{self.category=}\n' \
+    #         f'{self.url=}\n' \
+    #         f'{self.meta=}'
+
+    @property
+    def category(self):
+        return PurePath(os.path.normpath(
+            os.path.relpath(os.path.dirname(self.filepath), self.rootpath)
+        )).as_posix()
 
     @property
     def url(self) -> str:
-        return os.path.normpath(
+        return PurePath(os.path.normpath(
             os.path.join(
-                os.path.relpath(os.path.dirname(self.filepath), self.rootpath),
+                self.category,
                 f'{self.basename_without_ext}.html')
-        )
+        )).as_posix()
 
     _document = None
     _meta = None

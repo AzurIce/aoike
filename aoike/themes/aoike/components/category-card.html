@@ -1,0 +1,12 @@
+{% macro category_card(category, posts) -%}
+    <div class="category_card">
+        <span style="font-size: 125%;">{{ category }}</span>
+        {% for post in posts %}
+            <a href="{{ post.url }}">{{ post.meta.title }}</a>
+{#            <div style="display: flex; gap: 4px; color: #777777;">#}
+{#                <span>Date: {{ post.meta.date }}</span>#}
+{#                <span>Tags: {{ post.meta.tags }}</span>#}
+{#            </div>#}
+        {% endfor %}
+    </div>
+{%- endmacro %}

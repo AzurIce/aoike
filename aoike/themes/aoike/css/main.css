@@ -71,3 +71,13 @@ footer {
     border-radius: 0.25rem;
     border: 1px solid #cccccc;
 }
+
+.category_card {
+    display: flex;
+    flex-direction: column;
+    width: 400px;
+    gap: 8px;
+    padding: 4px;
+    border-radius: 0.25rem;
+    border: 1px solid #cccccc;
+}

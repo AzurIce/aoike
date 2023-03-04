@@ -1,7 +1,9 @@
+from datetime import datetime, time
 import fnmatch
 import os
 import time
 from pathlib import PurePath
+from pprint import pprint
 from typing import Iterable
 
 import jinja2
@@ -17,7 +19,8 @@ DST_DIR = 'site'
 
 
 def _get_post_key(post: Post):
-    return post.meta['date'], post.meta['title']
+    date, title = post.meta['date'], post.meta['title']
+    return date, title
 
 
 def build():
@@ -40,14 +43,25 @@ def build():
         # print(f'{type(file)}, {file.url=}, {file.filepath=}, {file.rootpath=}')
         file.build()
 
+    categories = {}
+    for post in posts:
+        if post.category not in categories:
+            categories[post.category] = [_post for _post in posts if _post.category == post.category]
+
+    pprint(categories)
+
     loader = jinja2.FileSystemLoader(aoike.theme.get_theme_dir('aoike'))
     env = jinja2.Environment(loader=loader, auto_reload=False)
+
     template = env.get_template('main.html')
-
-    output = template.render({'posts': posts, 'rel_rootpath': '.'})
-
+    output = template.render({'posts': posts, 'categories': categories, 'rel_rootpath': '.'})
     if output.strip():
         aoike.utils.files.write(output.encode('utf-8', errors='xmlcharrefreplace'), os.path.join(DST_DIR, 'index.html'))
+
+    template = env.get_template('categories.html')
+    output = template.render({'posts': posts, 'categories': categories, 'rel_rootpath': '.'})
+    if output.strip():
+        aoike.utils.files.write(output.encode('utf-8', errors='xmlcharrefreplace'), os.path.join(DST_DIR, 'categories.html'))
 
     print(f'Built in {time.monotonic() - start} seconds')
 

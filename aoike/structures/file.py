@@ -13,6 +13,15 @@ class File:
     rootpath: str
     "Absolute path, always separated with '/'"
 
+    # def __repr__(self):
+    #     return f'{self.filepath=}\n' \
+    #            f'{self.rootpath=}\n' \
+    #            f'{self.rel_rootpath=}\n' \
+    #            f'{self.basename=}\n' \
+    #            f'{self.basename_without_ext=}\n' \
+    #            f'{self.url=}\n' \
+    #            f'{self.dst_path=}'
+
     @property
     def basename(self) -> str:
         return os.path.basename(self.filepath)
@@ -23,14 +32,17 @@ class File:
 
     @property
     def url(self) -> str:
-        return os.path.normpath(os.path.relpath(self.filepath, self.rootpath))
+        return PurePath(os.path.normpath(
+            os.path.relpath(self.filepath, self.rootpath)
+        )).as_posix()
 
     @property
     def dst_path(self) -> str:
-        return os.path.join(DST_DIR, self.url)
+        return PurePath(os.path.join(DST_DIR, self.url)).as_posix()
 
     @property
     def rel_rootpath(self) -> str:
+        """根路径相对于当前文件路径的相对路径"""
         p = PurePath(os.path.relpath(self.rootpath, os.path.dirname(self.filepath))).as_posix()
         # if not p.endswith('/'):
         #     return f'{p}/'
