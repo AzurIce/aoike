@@ -12,6 +12,8 @@
     height: 3.5rem;
     padding: 10px;
     border-bottom: 1px solid #cccccc;
+    position: sticky;
+    top: 0;
 
     background: white;
     box-shadow: 0 0 0.2rem #0000001a, 0 0.2rem 0.4rem #0003;
@@ -32,6 +34,13 @@ a {
 }
 
 a:hover {
+    color: cornflowerblue;
+}
+
+a.commit_id {
+    color: #bbbbbb
+}
+a.commit_id:hover {
     color: cornflowerblue;
 }
 

@@ -1,0 +1,10 @@
+{% macro commit_info(commit) -%}
+    <div class="commit_info">
+        <span>{{ commit.date.strftime('%Y年%m月%d日 %H:%M:%S') }}</span>
+        <a class="commit_id" href="https://github.com/AzurIce/azurice.github.io/commit/{{ commit.id }}">{{ commit.id[:7] }}</a>
+
+        <div style="color: #777777; padding-left: 20px; text-wrap: white-space: normal;">
+            {{ commit.comment }}
+        </div>
+    </div>
+{%- endmacro %}

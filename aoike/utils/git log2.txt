@@ -1,0 +1,401 @@
+commit 3bef3e52d25a58da3936fec6d065e2448b37e8ea
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Sat Mar 4 13:53:37 2023 +0800
+
+    Update PostgreSQL安装.md
+
+commit e47829500c7ebd7e6e7fd6dcb506e51a08dd7022
+Merge: 94ac2ad bcb4edd
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Sat Mar 4 13:48:24 2023 +0800
+
+    Merge branch 'master' of https://github.com/AzurIce/azurice.github.io
+
+commit 94ac2ada8e63eedfcd2d5847171a3b181c4f3fe6
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Sat Mar 4 13:48:10 2023 +0800
+
+    格式化 Markdown
+
+commit bcb4edd44a2bfb8864fc17f49ab93ac97144f080
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Sat Mar 4 13:28:53 2023 +0800
+
+    Update aoike-gh-pages.yml
+
+commit f8455f6654ef9261c737c7ed9735866761b9140c
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Sat Mar 4 13:17:27 2023 +0800
+
+    Update aoike-gh-pages.yml
+
+commit 4315fbafe11577fa05133bb49e80cd4e77d4f9bb
+Merge: 4bb9165 e9146d7
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Sat Mar 4 13:17:01 2023 +0800
+
+    Merge branch 'aoike'
+
+commit e9146d770d422488d63eaa91fdfec18bff53c876
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Sat Mar 4 13:16:49 2023 +0800
+
+    Update PostgreSQL安装.md
+
+commit 4bb9165ff13a894af227d1c4a11d4da4717dec0e
+Merge: b81006b dea15e5
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Sat Mar 4 13:16:27 2023 +0800
+
+    Merge pull request #3 from AzurIce/aoike
+    
+    Aoike
+
+commit dea15e56953114f6e0a3bc64822e7ee3fd547a90
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Sat Mar 4 12:54:53 2023 +0800
+
+    Create PostgreSQL安装.md
+
+commit d727cbc551e0887f7ae64f0bf43b6cfa50c3078f
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Sat Mar 4 12:26:18 2023 +0800
+
+    Update CF1650F Vitaly and Advanced Useless Algorithms.md
+
+commit 655647d6ff2a57efa6f76cccf65a162e36ac1420
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Sat Mar 4 12:24:05 2023 +0800
+
+    migrated posts and fixed pics
+
+commit 3c2b064cdd471217b9698eb8a1edacfca3b8d28d
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Wed Mar 1 22:21:28 2023 +0800
+
+    modified structure
+
+commit cd95dce5c0af6041e60ddc00017b421c64e731ee
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Wed Mar 1 18:53:58 2023 +0800
+
+    Update KMP 算法 —— 前缀函数（前缀数组）.md
+
+commit 8780ba9b646192a62b4cc746fd70ecc75bbfd08c
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Wed Mar 1 18:53:51 2023 +0800
+
+    Update blog.md
+
+commit 20c46fabe57f33004efa6652ce95426037793850
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Wed Mar 1 18:07:41 2023 +0800
+
+    Update KMP 算法 —— 前缀函数（前缀数组）.md
+
+commit 65a745a680f0a526fffc723d0d6d55b27fb319a8
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Wed Mar 1 18:07:39 2023 +0800
+
+    Update 『C语言教程』0. 踏入C的大门.md
+
+commit bd88590f4687bdd805a554903c81acf20472fae7
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Wed Mar 1 17:15:20 2023 +0800
+
+    Update aoike-gh-pages.yml
+
+commit 2e5cb30f13ec5c4cd5c4bfd546d666103bfd1c64
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Wed Mar 1 17:14:26 2023 +0800
+
+    Update aoike-gh-pages.yml
+
+commit 76401e897f079d4ee372e5ebccb7bef01a5aa4b4
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Wed Mar 1 17:12:38 2023 +0800
+
+    Update aoike-gh-pages.yml
+
+commit 1df858cfa23a5d5f466bee3bfa6591a7ef3a4f53
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Wed Mar 1 17:10:16 2023 +0800
+
+    Update aoike-gh-pages.yml
+
+commit dfc1326d17b2fb31ba0f77c92069ecb0dfa08aa8
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Wed Mar 1 17:07:28 2023 +0800
+
+    Update aoike-gh-pages.yml
+
+commit fb96ea5358f93e58ed17e88481f299bc0cf5f8e4
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Wed Mar 1 17:06:07 2023 +0800
+
+    Update aoike-gh-pages.yml
+
+commit 2c2b686c7154bb0f8419f1e6dab6c8d808b7a00d
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Wed Mar 1 14:01:04 2023 +0800
+
+    Update aoike-gh-pages.yml
+
+commit 875671a004e96ba16247e49eb12010a99412f625
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Wed Mar 1 13:59:01 2023 +0800
+
+    Update aoike-gh-pages.yml
+
+commit 9475fbdd8f6545c73f2894457d0e0917d483b7aa
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Wed Mar 1 13:56:47 2023 +0800
+
+    Update aoike-gh-pages.yml
+
+commit d22201b6402521315f09f15449b73af8a5f3e396
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Wed Mar 1 13:13:23 2023 +0800
+
+    Update aoike-gh-pages.yml
+
+commit d472503dafc8b66eaf89070f712f0621f870971d
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Wed Mar 1 13:11:19 2023 +0800
+
+    Update and rename gh-pages.yml to aoike-gh-pages.yml
+
+commit b81006b77800b8da489f0d1522afceca152472df
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Wed Mar 1 13:10:20 2023 +0800
+
+    Delete aoike-gh-pages.yml
+
+commit 4a2881b19728b1768b97a826505cd5bf5b0d2193
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Wed Mar 1 13:07:24 2023 +0800
+
+    added aoike-gh-pages.yml
+
+commit d80663c252090f49694b11b45508f2bf8a98c4a7
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Wed Mar 1 13:05:24 2023 +0800
+
+    Delete aoike-gh-pages.yml
+
+commit adc6702a104bfd10f125f0efcb18a4b477da1436
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Wed Mar 1 12:58:17 2023 +0800
+
+    Update aoike-gh-pages.yml
+
+commit b9f51a3012103a0ef2dbf49d9629fc499fc5779b
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Wed Mar 1 12:56:48 2023 +0800
+
+    Create aoike-gh-pages.yml
+
+commit ff2e88476f260c28362cf4990926a426bc701cb9
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Wed Mar 1 10:08:49 2023 +0800
+
+    switched to aoike
+
+commit 8570a6adeb48d9845729bc8822d06ca7d4b80399
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Tue Feb 28 18:12:21 2023 +0800
+
+    Update FixIt
+
+commit 98c942840f172f9423b9390d1b199e7aabc9afdb
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Wed Feb 15 11:20:30 2023 +0800
+
+    upyun
+
+commit aad3f0fd8dd26d599f33af94aecebf770650bb33
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Tue Feb 14 18:05:55 2023 +0800
+
+    Update params.toml
+
+commit bb330f44c62de348692f9e63b9a816dc80605f20
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Tue Feb 14 18:05:54 2023 +0800
+
+    Create 备案图标.png
+
+commit 0f8076971509cc5f288f5735adb6c6104c37aac4
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Tue Feb 14 17:52:28 2023 +0800
+
+    Update .gitignore
+
+commit 6abe0527f5d7c4e7542d47aaee0b33fe00699a38
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Tue Feb 14 16:57:39 2023 +0800
+
+    Tidy up
+
+commit ed2bafca816e11e59a55926ebc136c27794bc507
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Tue Feb 14 13:54:32 2023 +0800
+
+    Update gh-pages.yml
+
+commit 4518fafb930f201569894e2f6588282d1d7dc532
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Tue Feb 14 13:51:11 2023 +0800
+
+    Update gh-pages.yml
+
+commit a529239b3ce8257386b715ad0b980cc4263d8736
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Tue Feb 14 11:24:12 2023 +0800
+
+    Create KMP 算法 —— 前缀函数（前缀数组）.md
+
+commit b3d13945e2aec36c29f0167c8bf9941967af578e
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Tue Feb 14 10:25:04 2023 +0800
+
+    Create Golang 接口.md
+
+commit 78175938fe94f2d2f3fc966bc4fd877b6acb7e13
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Mon Feb 13 21:41:24 2023 +0800
+
+    Create 提高生产力的工具们（持续更新）.md
+
+commit ec54f057e7ec1ad9b4534d44747c625f6dfe1e57
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Mon Feb 13 21:41:20 2023 +0800
+
+    Create 记一次Manjaro KDE美化.md
+
+commit fe83e91fe2c4b0c3309502aed51b4f2ecba7b2bd
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Sun Feb 12 22:27:20 2023 +0800
+
+    theme: update config, added font
+
+commit 48e5f13bd7c6b480aa81600c07e8e4233b95ce53
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Sun Feb 12 21:13:50 2023 +0800
+
+    Update params.toml
+
+commit 6221e81f1c1984a5ffd2145235eba8c8eda07913
+Merge: bdc23a2 7cfc859
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Sun Feb 12 21:11:52 2023 +0800
+
+    Merge branch 'master' of github.com:AzurIce/azurice.github.io
+
+commit bdc23a23d7dcb2da8bec61becc47049f718c7846
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Sun Feb 12 21:11:39 2023 +0800
+
+    Updated Theme FixIt
+
+commit f0e390f46d982fee37a4af564d85b7cd3cf85952
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Sun Feb 12 21:01:31 2023 +0800
+
+    add post: 使用哈希算法以及加盐来增强服务端密码存储安全
+
+commit f8194242fd9ee51bca65d87d02f4463263ff4b93
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Sun Feb 12 21:00:52 2023 +0800
+
+    modified categories
+
+commit 7cfc859d24c851ba1ac7f6b97e32c3b9a0fc6295
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Sun Feb 12 01:22:23 2023 +0800
+
+    Enabled giscus
+
+commit 5de666e108b09437e43063e6efadf57f1119272e
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Sun Feb 12 01:12:15 2023 +0800
+
+    changed theme to FixIt
+
+commit 0c78944ae144f44e5013d8808d01af054ccba09f
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Thu Feb 9 11:13:41 2023 +0800
+
+    Update blog.md
+
+commit a61b0772cefad610fb99e96119d816b5fe5361a7
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Thu Feb 9 11:11:25 2023 +0800
+
+    Migrated:『C语言教程』
+
+commit 1f692ba9c22135b6ad29c3af26a1902b006f0d6d
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Thu Feb 9 00:47:35 2023 +0800
+
+    Moved hello.md
+
+commit 3eb24221ee5145df688647d8f111e90ac3c487a4
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Thu Feb 9 00:37:59 2023 +0800
+
+    Updated gh-pages.yml
+
+commit 4517fb2fb7f4cadf2b7a4dbfca4983a090c1acf4
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Thu Feb 9 00:33:35 2023 +0800
+
+    fixed branch name mistake (main to master)
+
+commit ebfb37f4143677ef1daa4a19fbac08f4f1e66d51
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Thu Feb 9 00:31:21 2023 +0800
+
+    enabled hugo-extended
+
+commit fd6a2d3bb5ec5efbf64710db174f178e8cb5e018
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Thu Feb 9 00:29:20 2023 +0800
+
+    Removed generated files
+
+commit 9963f0029a75d90aaaa3976af58536985d66b2ed
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Thu Feb 9 00:28:29 2023 +0800
+
+    Added auto-deplay Github Actions
+
+commit b47b7c4029e0451b7ac5f08810af0004bd8034e9
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Thu Feb 9 00:28:17 2023 +0800
+
+    Configed the theme roughly
+
+commit 4a493e3c67a72b610ef36da0f7c202a2e4737800
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Wed Feb 8 23:06:33 2023 +0800
+
+    added theme hugo-theme-stack
+
+commit ea77ea43e3dde435aeb8f59a8b7cf81c9d3715cd
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Wed Feb 8 22:53:12 2023 +0800
+
+    added theme hugo-theme-stack
+
+commit a531f35741b4bcd48c165b37f41829194b1b6094
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Wed Feb 8 22:35:25 2023 +0800
+
+    modified basic site config
+
+commit b8fc05996f1e7c0f9a8eacd8d758158f1a683fcb
+Author: Azur冰弦 <973562770@qq.com>
+Date:   Wed Feb 8 22:33:04 2023 +0800
+
+    Initial commit

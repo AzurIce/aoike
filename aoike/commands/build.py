@@ -10,6 +10,7 @@ import jinja2
 
 import aoike.theme
 import aoike.utils.files
+import aoike.utils.git as git
 from aoike.structures.file import File
 from aoike.structures.post import Post
 
@@ -54,7 +55,12 @@ def build():
     env = jinja2.Environment(loader=loader, auto_reload=False)
 
     template = env.get_template('main.html')
-    output = template.render({'posts': posts, 'categories': categories, 'rel_rootpath': '.'})
+    output = template.render({
+        'posts': posts,
+        'categories': categories,
+        'rel_rootpath': '.',
+        'commits': git.get_git_log_commit_list()
+    })
     if output.strip():
         aoike.utils.files.write(output.encode('utf-8', errors='xmlcharrefreplace'), os.path.join(DST_DIR, 'index.html'))
 

@@ -83,7 +83,10 @@
 <body>
 
 <div class="navbar">
-    <span>Aoike 青之池</span>
+    <div style="display: flex; align-items: baseline">
+        <span>Aoike 青之池</span>
+        <span style="color: #bbbbbb; font-size: 60%">「留存诗意于心，恪守初心于路」</span>
+    </div>
     {% block navbar %}
         <div style="display: flex; gap: 20px;">
             <a href="{{ rel_rootpath }}/index.html">主页</a>
@@ -92,32 +95,9 @@
     {% endblock %}
 </div>
 
-<div style="display: flex; gap: 8px; margin-top: 20px;">
-    <a href="https://github.com/AzurIce/azurice.github.io/actions/workflows/aoike-gh-pages.yml">
-        <img alt="GitHub Actions"
-             src="https://img.shields.io/github/actions/workflow/status/AzurIce/azurice.github.io/aoike-gh-pages.yml"/>
-    </a>
+{% block header %}
 
-    <a href="https://github.com/AzurIce/azurice.github.io">
-        <img alt="Lines of code" src="https://img.shields.io/tokei/lines/github/AzurIce/azurice.github.io">
-    </a>
-
-    <a href="https://github.com/AzurIce/azurice.github.io/commits/aoike">
-        <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/AzurIce/azurice.github.io">
-    </a>
-</div>
-
-<div style="display: flex; gap: 8px;">
-    <a href="https://github.com/AzurIce">
-        <img alt="GitHub followers" src="https://img.shields.io/github/followers/AzurIce?style=social">
-    </a>
-    <a href="https://github.com/AzurIce/azurice.github.io">
-        <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/AzurIce/azurice.github.io?style=social">
-    </a>
-    <a href="https://github.com/AzurIce/azurice.github.io">
-        <img alt="GitHub watchers" src="https://img.shields.io/github/watchers/AzurIce/azurice.github.io?style=social">
-    </a>
-</div>
+{% endblock %}
 
 <div class="content">
     {% block content %}
