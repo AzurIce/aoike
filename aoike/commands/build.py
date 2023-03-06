@@ -58,7 +58,7 @@ def build():
             post_tags = post.meta['tags']
             for post_tag in post_tags:
                 if post_tag not in tags:
-                    tags[post_tag] = [_post for _post in posts if _post.meta['tags'] is not None and post_tag in _post.meta['tags']]
+                    tags[post_tag] = [_post for _post in posts if 'tags' in _post.meta and post_tag in _post.meta['tags']]
     pprint(tags)
 
     loader = jinja2.FileSystemLoader(aoike.theme.get_theme_dir('aoike'))
