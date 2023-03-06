@@ -3,6 +3,7 @@
 @import "highlight.css";
 
 .navbar {
+    z-index: 7;
     font-size: 115%;
     display: flex;
     justify-content: space-between;
@@ -80,7 +81,7 @@ html {
 }
 
 code {
-    font-family: var(--font-family-mono)
+    /*font-family: var(--font-family-mono)*/
 }
 
 footer {

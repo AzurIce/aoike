@@ -103,6 +103,12 @@ class Post(File):
             'pymdownx.highlight': {
                 'linenums': True,
                 'use_pygments': True,
+                'pygments_style': 'default',
+                'auto_title': True,
+                'noclasses': True,
+                # 'anchor_linenums': True,
+                # 'line_spans': '__span',
+                'pygments_lang_class': True,
             },
             'pymdownx.extra': {
                 'pymdownx.superfences': {
