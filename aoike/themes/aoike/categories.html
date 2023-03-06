@@ -3,7 +3,17 @@
 {% from 'components/category-card.html' import category_card %}
 
 {% block content %}
-    <div style="display: grid; justify-content: space-evenly; grid-template-columns: repeat(auto-fill, 400px); grid-gap: 10px">
+    <div class="tag-cloud" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center">
+        {% for tag, post in tags.items() %}
+            {% set factor = 1 + [tags[tag] | length, 20] | min * 0.05 %}
+            {% set color = [160 - (factor-1) * 100, 0] | max %}
+            <div style="font-size: {{ factor }}rem; color: rgb({{ color }}, {{ color }}, {{ color }})">
+                {{ tag }}
+                <sup>{{ tags[tag] | length }}</sup>
+            </div>
+        {% endfor %}
+    </div>
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; row-gap: 10px;">
         {% for category, posts in categories.items() %}
             {{ category_card(category, posts) }}
         {% endfor %}

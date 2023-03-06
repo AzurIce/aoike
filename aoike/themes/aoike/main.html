@@ -3,53 +3,53 @@
 {% from 'components/post-card.html' import post_card %}
 
 {% block header %}
+    <div class="header">
+        <div style="display: flex; flex-direction:column; gap: 8px; align-items: center;">
+            <span style="font-size: 200%;">Aoike 青池</span>
+            <span style="color: #bbbbbb;">「留存诗意于心，恪守初心于路」</span>
+        </div>
 
-    <div style="display: flex; flex-direction:column; gap: 8px; margin-top: 20px; align-items: center;">
-        <span style="font-size: 200%;">Aoike 青池</span>
-        <span style="color: #bbbbbb;">「留存诗意于心，恪守初心于路」</span>
+        <div style="display: flex; gap: 8px;">
+            <a href="https://github.com/AzurIce/azurice.github.io/actions/workflows/aoike-gh-pages.yml">
+                <img alt="GitHub Actions"
+                     src="https://img.shields.io/github/actions/workflow/status/AzurIce/azurice.github.io/aoike-gh-pages.yml"/>
+            </a>
+
+            <a href="https://github.com/AzurIce/azurice.github.io">
+                <img alt="Lines of code" src="https://img.shields.io/tokei/lines/github/AzurIce/azurice.github.io">
+            </a>
+
+            <a href="https://github.com/AzurIce/azurice.github.io/commits/aoike">
+                <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/AzurIce/azurice.github.io">
+            </a>
+        </div>
+
+        <div style="display: flex; gap: 8px;">
+            <a href="https://github.com/AzurIce">
+                <img alt="GitHub followers" src="https://img.shields.io/github/followers/AzurIce?style=social">
+            </a>
+            <a href="https://github.com/AzurIce/azurice.github.io">
+                <img alt="GitHub Repo stars"
+                     src="https://img.shields.io/github/stars/AzurIce/azurice.github.io?style=social">
+            </a>
+            <a href="https://github.com/AzurIce/azurice.github.io">
+                <img alt="GitHub watchers"
+                     src="https://img.shields.io/github/watchers/AzurIce/azurice.github.io?style=social">
+            </a>
+        </div>
+        {% from 'components/commit-info.html' import commit_info %}
+        <div>
+            <a href="https://repobeats.axiom.co/">
+                <img style="width: 100%;" alt="Repobeats analytics image"
+                     src="https://repobeats.axiom.co/api/embed/629861c009443f81fb7970e8d1f2e2d012e9f785.svg "/>
+            </a>
+        </div>
+        <div style="margin-top: 20px; display: flex; flex-direction:column; gap: 10px; align-items: start; width: 100%; height: 100px; overflow-y: auto; overflow-x: hidden;">
+            {% for commit in commits %}
+                {{ commit_info(commit) }}
+            {% endfor %}
+        </div>
     </div>
-
-    <div style="display: flex; gap: 8px; margin-top: 20px;">
-        <a href="https://github.com/AzurIce/azurice.github.io/actions/workflows/aoike-gh-pages.yml">
-            <img alt="GitHub Actions"
-                 src="https://img.shields.io/github/actions/workflow/status/AzurIce/azurice.github.io/aoike-gh-pages.yml"/>
-        </a>
-
-        <a href="https://github.com/AzurIce/azurice.github.io">
-            <img alt="Lines of code" src="https://img.shields.io/tokei/lines/github/AzurIce/azurice.github.io">
-        </a>
-
-        <a href="https://github.com/AzurIce/azurice.github.io/commits/aoike">
-            <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/AzurIce/azurice.github.io">
-        </a>
-    </div>
-
-    <div style="display: flex; gap: 8px;">
-        <a href="https://github.com/AzurIce">
-            <img alt="GitHub followers" src="https://img.shields.io/github/followers/AzurIce?style=social">
-        </a>
-        <a href="https://github.com/AzurIce/azurice.github.io">
-            <img alt="GitHub Repo stars"
-                 src="https://img.shields.io/github/stars/AzurIce/azurice.github.io?style=social">
-        </a>
-        <a href="https://github.com/AzurIce/azurice.github.io">
-            <img alt="GitHub watchers"
-                 src="https://img.shields.io/github/watchers/AzurIce/azurice.github.io?style=social">
-        </a>
-    </div>
-    {% from 'components/commit-info.html' import commit_info %}
-    <div style="margin-top: 20px; width: 70%">
-        <a href="https://repobeats.axiom.co/"><img style="width: 100%;" alt="Repobeats analytics image"
-                                                   src="https://repobeats.axiom.co/api/embed/629861c009443f81fb7970e8d1f2e2d012e9f785.svg "/></a>
-    </div>
-    <div style="margin-top: 20px; display: flex; flex-direction:column; gap: 10px; align-items: start; width: 70%; height: 100px; overflow-y: auto; overflow-x: hidden;">
-        {% for commit in commits %}
-            {{ commit_info(commit) }}
-        {% endfor %}
-    </div>
-
-
-
 {% endblock %}
 
 {% block content %}

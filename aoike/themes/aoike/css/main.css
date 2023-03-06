@@ -20,11 +20,21 @@
     box-sizing: border-box;
 }
 
-.content {
-    width: 100%;
-    padding: 20px;
+.header {
     display: flex;
     flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    margin-top: 20px;
+    width: 70%;
+}
+
+.content {
+    width: 70%;
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     gap: 8px;
     box-sizing: border-box;
 }
@@ -40,6 +50,7 @@ a:hover {
 a.commit_id {
     color: #bbbbbb
 }
+
 a.commit_id:hover {
     color: cornflowerblue;
 }
@@ -85,7 +96,7 @@ footer {
 .category_card {
     display: flex;
     flex-direction: column;
-    width: 400px;
+    width: 45%;
     gap: 8px;
     padding: 10px;
     border-radius: 0.25rem;

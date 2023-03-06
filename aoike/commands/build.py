@@ -49,7 +49,17 @@ def build():
         if post.category not in categories:
             categories[post.category] = [_post for _post in posts if _post.category == post.category]
 
+    categories = dict(sorted(categories.items(), key=lambda x: x[0]))
     pprint(categories)
+
+    tags = {}
+    for post in posts:
+        post_tags = post.meta['tags']
+        if post_tags is not None:
+            for post_tag in post_tags:
+                if post_tag not in tags:
+                    tags[post_tag] = [_post for _post in posts if _post.meta['tags'] is not None and post_tag in _post.meta['tags']]
+    pprint(tags)
 
     loader = jinja2.FileSystemLoader(aoike.theme.get_theme_dir('aoike'))
     env = jinja2.Environment(loader=loader, auto_reload=False)
@@ -61,13 +71,16 @@ def build():
         'rel_rootpath': '.',
         'commits': git.get_git_log_commit_list()
     })
+
     if output.strip():
         aoike.utils.files.write(output.encode('utf-8', errors='xmlcharrefreplace'), os.path.join(DST_DIR, 'index.html'))
 
     template = env.get_template('categories.html')
-    output = template.render({'posts': posts, 'categories': categories, 'rel_rootpath': '.'})
+    output = template.render({'posts': posts, 'categories': categories, 'rel_rootpath': '.', 'tags': tags})
     if output.strip():
-        aoike.utils.files.write(output.encode('utf-8', errors='xmlcharrefreplace'), os.path.join(DST_DIR, 'categories.html'))
+        aoike.utils.files.write(
+            output.encode('utf-8', errors='xmlcharrefreplace'), os.path.join(DST_DIR, 'categories.html')
+        )
 
     print(f'Built in {time.monotonic() - start} seconds')
 
