@@ -54,8 +54,8 @@ def build():
 
     tags = {}
     for post in posts:
-        post_tags = post.meta['tags']
-        if post_tags is not None:
+        if 'tags' in post.meta:
+            post_tags = post.meta['tags']
             for post_tag in post_tags:
                 if post_tag not in tags:
                     tags[post_tag] = [_post for _post in posts if _post.meta['tags'] is not None and post_tag in _post.meta['tags']]
