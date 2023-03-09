@@ -41,6 +41,10 @@
     box-sizing: border-box;
 }
 
+.content img {
+    max-width: 100%;
+}
+
 :not(pre)>code {
     background-color: #f6f6f6;
     /*color: #bbbbbb;*/
