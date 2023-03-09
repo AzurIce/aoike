@@ -18,9 +18,10 @@ def serve_command():
 
 
 @cli.command(name='build')
-def build_command():
-    from aoike.commands import build
-    build.build()
+@click.option("--src-dir", default="./", help="Source Dir", type=str)
+def build_command(src_dir):
+    from aoike.commands.build import build
+    build(src_dir = src_dir)
 
 
 if __name__ == '__main__':

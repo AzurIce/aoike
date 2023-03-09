@@ -14,7 +14,6 @@ import aoike.utils.git as git
 from aoike.structures.file import File
 from aoike.structures.post import Post
 
-SRC_DIR = './'
 POSTS_DIR = 'posts'
 DST_DIR = 'site'
 
@@ -24,12 +23,12 @@ def _get_post_key(post: Post):
     return date, title
 
 
-def build():
+def build(*, src_dir):
     """Perform a full site build."""
     start = time.monotonic()
     aoike.utils.files.clean_directory(DST_DIR)
 
-    files = _get_files()
+    files = _get_files(src_dir=src_dir)
     posts = [file for file in files if isinstance(file, Post)]
     print(f'Before sort: {posts}')
     list.sort(posts, key=_get_post_key, reverse=True)
@@ -85,7 +84,7 @@ def build():
     print(f'Built in {time.monotonic() - start} seconds')
 
 
-def _get_files() -> list[File]:
+def _get_files(*, src_dir) -> list[File]:
     files = []
 
     for source_dir, dirnames, filenames in os.walk(POSTS_DIR, followlinks=True):
@@ -106,14 +105,15 @@ def _get_files() -> list[File]:
 
             if filename.endswith('.md'):
                 print(f'{filename=}')
-                files.append(Post(filepath))
+                files.append(Post(filepath, src_dir))
             else:
                 print(f'{filename=}')
-                files.append(File(filepath))
+                files.append(File(filepath, src_dir))
 
     theme_dir = aoike.theme.get_theme_dir('aoike')
     loader = jinja2.FileSystemLoader(theme_dir)
     env = jinja2.Environment(loader=loader, auto_reload=False)
+
 
     def filter(name):
         patterns = ['.*', '*/.*', '*.py', '*.pyc', '*.html', '*readme*']

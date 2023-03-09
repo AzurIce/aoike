@@ -3,7 +3,7 @@ from pathlib import PurePath
 
 from aoike.utils import files
 
-SRC_DIR = './'
+# SRC_DIR = './'
 POSTS_DIR = 'posts'
 DST_DIR = 'site'
 
