@@ -1,6 +1,7 @@
 @import "variables.css";
 
 .highlight {
+    display: block;
     overflow-x: auto;
 }
 
@@ -14,6 +15,25 @@
 
 td.code pre {
     line-height: inherit!important;
+}
+
+.highlighttable {
+    display: flow-root;
+    margin: 1em 0;
+}
+
+.highlighttable tbody {
+    display: block;
+    flex: 1;
+}
+
+.highlighttable tr {
+    display: flex;
+}
+
+.highlighttable .code {
+    display: flex;
+    flex: 1;
 }
 
 /*th.filename {*/

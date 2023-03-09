@@ -33,6 +33,7 @@
 .content {
     width: 70%;
     padding: 20px 0;
+    /*display: block;*/
     display: flex;
     flex-direction: column;
     /*align-items: center;*/
@@ -41,9 +42,9 @@
 }
 
 :not(pre)>code {
-    background-color: #f7f7f7;
-    color: #575757;
-    padding: 0 2px;
+    background-color: #f6f6f6;
+    /*color: #bbbbbb;*/
+    padding: 0 4px;
     border-radius: 4px;
 }
 
@@ -81,7 +82,7 @@ html {
 }
 
 code {
-    /*font-family: var(--font-family-mono)*/
+    font-family: var(--font-family-mono)
 }
 
 footer {
