@@ -21,7 +21,7 @@ def serve_command():
 @click.option("--src-dir", default="./", help="Source Dir", type=str)
 def build_command(src_dir):
     from aoike.commands.build import build
-    build(src_dir = src_dir)
+    build(src_dir=src_dir)
 
 
 if __name__ == '__main__':
