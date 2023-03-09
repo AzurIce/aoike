@@ -2,7 +2,7 @@ import os
 import re
 from io import StringIO
 from pathlib import PurePath
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 import jinja2
 import markdown
@@ -13,12 +13,19 @@ from markdown import Markdown
 import aoike.theme
 from aoike.structures.file import File
 from aoike.utils import files, meta
+from aoike.utils.git import GitLogCommitInfo, get_git_log_commit_list
 
 
 class Post(File):
     """
     A Aoike Post object.
     """
+
+    def __init__(self, filepath: str, rootpath: str = './'):
+        super().__init__(filepath, rootpath)
+        self._meta = None
+        self._git_log_commits = None
+        self._document = None
 
     def __repr__(self):
         return f'<Post: {self.category=}, {self.url=}>'
@@ -43,16 +50,15 @@ class Post(File):
                 f'{self.basename_without_ext}.html')
         )).as_posix()
 
-    _document = None
-    _meta = None
-
     @property
     def document(self) -> str:
         if self._document is not None:
+            # print(self._document)
             return self._document
         else:
             with open(self.filepath, 'r', encoding='utf-8') as f:
                 self._document = f.read()
+            # print(self._document)
             return self._document
 
     @property
@@ -80,11 +86,27 @@ class Post(File):
 
     @property
     def meta(self) -> Dict[str, Any]:
-        if self._document is not None:
+        if self._meta is not None:
             return self._meta
         else:
             self._meta = meta.split_meta(self.document)[0]
+            if 'title' not in self._meta:
+                self._meta['title'] = self.basename_without_ext
+            if 'create' not in self._meta:
+                self._meta['create'] = self.git_log_commits[-1].date
+            if 'update' not in self._meta:
+                self._meta['update'] = self.git_log_commits[0].date
+            print(self._meta)
             return self._meta
+
+    @property
+    def git_log_commits(self) -> List[GitLogCommitInfo]:
+        if self._git_log_commits is not None:
+            return self._git_log_commits
+        # print(self.rootpath)
+        # print(self.filepath)
+        self._git_log_commits = get_git_log_commit_list(cwd=self.rootpath, filepath=self.filepath)
+        return self._git_log_commits
 
     @property
     def content(self) -> str:
@@ -129,6 +151,7 @@ class Post(File):
         env = jinja2.Environment(loader=loader, auto_reload=False)
         template = env.get_template('post.html')
 
+        print(self.meta)
         output = template.render(
             {'meta': self.meta, 'content': self.rendered_content, 'rel_rootpath': self.rel_rootpath})
 

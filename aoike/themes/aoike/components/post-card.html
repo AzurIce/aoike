@@ -1,8 +1,10 @@
 {% macro post_card(post) -%}
     <div class="post-card">
         <span style="font-size: 120%"><a href="{{ post.url }}">{{ post.meta.title }}</a></span>
-        <div style="display: flex; gap: 4px; color: #777777;">
-            <span>Date: {{ post.meta.date }}</span>
+        <div style="display: flex; flex-wrap: wrap; gap: 4px; color: #777777;">
+            <span>Create: {{ post.meta['create'] }}</span>
+            {{ post.meta.update }}
+            <span>Update: {{ post.meta['update'] }}</span>
             <span>Tags: {{ post.meta.tags }}</span>
 {#            <span>File: {{ post.basename_without_ext }}</span>#}
         </div>

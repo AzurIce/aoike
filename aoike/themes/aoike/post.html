@@ -7,7 +7,8 @@
 
 {% block content %}
     <h1>{{ meta.title }}</h1>
-    {{ meta.date }}<br/>
+    Create: {{ meta['create'] }}<br/>
+    Update: {{ meta['update'] }}<br/>
     <div style="display: flex; gap: 2px;">
         Tags: {% for tag in meta.tags %}
         <span>{{ tag }}</span>

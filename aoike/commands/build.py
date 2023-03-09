@@ -4,7 +4,7 @@ import os
 import time
 from pathlib import PurePath
 from pprint import pprint
-from typing import Iterable
+from typing import Iterable, List
 
 import jinja2
 
@@ -19,8 +19,9 @@ DST_DIR = 'site'
 
 
 def _get_post_key(post: Post):
-    date, title = post.meta['date'], post.meta['title']
-    return date, title
+    # print(post.meta)
+    create, update, title = post.meta['create'], post.meta['update'], post.meta['title']
+    return create, update, title
 
 
 def build(*, src_dir):
@@ -29,14 +30,16 @@ def build(*, src_dir):
     aoike.utils.files.clean_directory(DST_DIR)
 
     files = _get_files(src_dir=src_dir)
-    posts = [file for file in files if isinstance(file, Post)]
-    print(f'Before sort: {posts}')
-    list.sort(posts, key=_get_post_key, reverse=True)
-    print(f'After sort: {posts}')
+    posts: List[Post] = [file for file in files if isinstance(file, Post)]
+    git_tracked_posts = [post for post in posts if len(post.git_log_commits)]
+    print(git_tracked_posts)
+    # print(f'Before sort: {git_tracked_posts}')
+    list.sort(git_tracked_posts, key=_get_post_key, reverse=True)
+    # print(f'After sort: {git_tracked_posts}')
     files = [file for file in files if file not in posts]
 
-    for post in posts:
-        # print(f'{type(file)}, {file.url=}, {file.filepath=}, {file.rootpath=}')
+    for post in git_tracked_posts:
+        # print(f'{type(post)}, {post.url=}, {post.filepath=}, {post.rootpath=}')
         post.build()
 
     for file in files:
@@ -44,20 +47,20 @@ def build(*, src_dir):
         file.build()
 
     categories = {}
-    for post in posts:
+    for post in git_tracked_posts:
         if post.category not in categories:
-            categories[post.category] = [_post for _post in posts if _post.category == post.category]
+            categories[post.category] = [_post for _post in git_tracked_posts if _post.category == post.category]
 
     categories = dict(sorted(categories.items(), key=lambda x: x[0]))
     pprint(categories)
 
     tags = {}
-    for post in posts:
+    for post in git_tracked_posts:
         if 'tags' in post.meta:
             post_tags = post.meta['tags']
             for post_tag in post_tags:
                 if post_tag not in tags:
-                    tags[post_tag] = [_post for _post in posts if 'tags' in _post.meta and post_tag in _post.meta['tags']]
+                    tags[post_tag] = [_post for _post in git_tracked_posts if 'tags' in _post.meta and post_tag in _post.meta['tags']]
     pprint(tags)
 
     loader = jinja2.FileSystemLoader(aoike.theme.get_theme_dir('aoike'))
@@ -65,7 +68,7 @@ def build(*, src_dir):
 
     template = env.get_template('main.html')
     output = template.render({
-        'posts': posts,
+        'posts': git_tracked_posts,
         'categories': categories,
         'rel_rootpath': '.',
         'commits': git.get_git_log_commit_list()
@@ -75,7 +78,7 @@ def build(*, src_dir):
         aoike.utils.files.write(output.encode('utf-8', errors='xmlcharrefreplace'), os.path.join(DST_DIR, 'index.html'))
 
     template = env.get_template('categories.html')
-    output = template.render({'posts': posts, 'categories': categories, 'rel_rootpath': '.', 'tags': tags})
+    output = template.render({'posts': git_tracked_posts, 'categories': categories, 'rel_rootpath': '.', 'tags': tags})
     if output.strip():
         aoike.utils.files.write(
             output.encode('utf-8', errors='xmlcharrefreplace'), os.path.join(DST_DIR, 'categories.html')
@@ -87,7 +90,7 @@ def build(*, src_dir):
 def _get_files(*, src_dir) -> list[File]:
     files = []
 
-    for source_dir, dirnames, filenames in os.walk(POSTS_DIR, followlinks=True):
+    for source_dir, dirnames, filenames in os.walk(os.path.join(src_dir, POSTS_DIR), followlinks=True):
 
         # Ignore dirs starts with _
         for dirname in list(dirnames):
