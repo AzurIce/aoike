@@ -20,8 +20,8 @@ DST_DIR = 'site'
 
 def _get_post_key(post: Post):
     # print(post.meta)
-    create, update, title = post.meta['create'], post.meta['title']
-    return create, update, title
+    create, title = post.meta['create'], post.meta['title']
+    return create, title
 
 
 def build(*, src_dir):
