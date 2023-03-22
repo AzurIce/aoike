@@ -9,11 +9,13 @@
     <h1>{{ meta.title }}</h1>
     Create: {{ meta['create'] }}<br/>
     Update: {{ meta['update'] }}<br/>
-    <div style="display: flex; gap: 2px;">
-        Tags: {% for tag in meta.tags %}
-        <span>{{ tag }}</span>
-    {% endfor %}
-    </div>
+    {% if meta.tags | length %}
+        <div style="display: flex; gap: 2px;">
+            Tags: {% for tag in meta.tags %}
+            <span>{{ tag }}</span>
+        {% endfor %}
+        </div>
+    {% endif %}
     {{ content }}
     {% include "components/comment.html" %}
 {% endblock %}

@@ -115,3 +115,36 @@ footer {
     border-radius: 0.25rem;
     border: 1px solid #cccccc;
 }
+
+/*quote block*/
+blockquote:before {
+    display: block;
+    position: absolute;
+    content: '';
+    width: 4px;
+    left: 0;
+    top: 0;
+    height: 100%;
+    background-color: #61AFEF;
+    border-radius: 2px;
+}
+
+blockquote {
+    margin: 0;
+    color: #666666;
+    border-radius: 2px;
+    padding: 10px 16px;
+    background-color: rgba(185, 209, 248, 0.3);
+    position: relative;
+    border-left: none;
+}
+
+hr {
+    height: 2px;
+    padding: 0;
+    margin: 16px 0;
+    background-color: #cccccc;
+    border: 0 none;
+    overflow: hidden;
+    box-sizing: content-box;
+}
