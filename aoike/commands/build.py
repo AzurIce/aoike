@@ -91,6 +91,7 @@ def _get_files(*, src_dir) -> list[File]:
     files = []
 
     for source_dir, dirnames, filenames in os.walk(os.path.join(src_dir, POSTS_DIR), followlinks=True):
+        # print(f'{filenames=}')
 
         # Ignore dirs starts with _
         for dirname in list(dirnames):
@@ -107,10 +108,10 @@ def _get_files(*, src_dir) -> list[File]:
                 continue
 
             if filename.endswith('.md'):
-                print(f'{filename=}')
+                # print(f'{filename=}')
                 files.append(Post(filepath, src_dir))
             else:
-                print(f'{filename=}')
+                # print(f'{filename=}')
                 files.append(File(filepath, src_dir))
 
     theme_dir = aoike.theme.get_theme_dir('aoike')

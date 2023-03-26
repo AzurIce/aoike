@@ -68,6 +68,14 @@ a.commit_id:hover {
     color: cornflowerblue;
 }
 
+a.draft {
+    color: #777777
+}
+
+a.draft:hover {
+    color: cornflowerblue;
+}
+
 body {
     position: relative;
     display: flex;

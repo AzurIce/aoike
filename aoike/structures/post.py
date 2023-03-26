@@ -35,6 +35,9 @@ class Post(File):
     #         f'{self.category=}\n' \
     #         f'{self.url=}\n' \
     #         f'{self.meta=}'
+    @property
+    def is_draft(self) -> bool:
+        return self.basename.startswith('-')
 
     @property
     def category(self):
@@ -151,7 +154,7 @@ class Post(File):
         env = jinja2.Environment(loader=loader, auto_reload=False)
         template = env.get_template('post.html')
 
-        print(self.meta)
+        # print(self.meta)
         output = template.render(
             {'meta': self.meta, 'content': self.rendered_content, 'rel_rootpath': self.rel_rootpath})
 
