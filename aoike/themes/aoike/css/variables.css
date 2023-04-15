@@ -1,4 +1,9 @@
 :root {
     --font-family: 'LXGW Bright', Fira Mono, Source Code Pro, Menlo, Consolas, Monaco, monospace;
     --font-family-mono: 'JetBrainsMono Nerd Font Mono', Fira Mono, Source Code Pro, Menlo, Consolas, 'LXGW Bright', Monaco, monospace;
+    --bg-color: #ffffff;
+    --table-header-bg-color: #f6f6f6;
+    --table-n2-bg-color: var(--bg-color);
+    --table-bg-color: var(--bg-color);
+    --table-border-color: #f8f8f8;
 }
