@@ -3,11 +3,11 @@ import re
 from io import StringIO
 from pathlib import PurePath
 from typing import Any, Dict, List
+from xml.etree.ElementTree import Element
 
 import jinja2
 import markdown
 import pymdownx.superfences
-from _elementtree import Element
 from markdown import Markdown
 
 import aoike.theme
