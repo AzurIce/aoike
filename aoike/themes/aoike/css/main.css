@@ -32,13 +32,16 @@
 
 .content {
     width: 70%;
-    padding: 20px 0;
+    margin-top: 2rem;
+    padding: 2rem 10%;
     /*display: block;*/
     display: flex;
     flex-direction: column;
     /*align-items: center;*/
     gap: 8px;
     box-sizing: border-box;
+    border-radius: 0.5rem;
+    box-shadow: 0 12px 15px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
 }
 
 .content img {
@@ -155,4 +158,42 @@ hr {
     border: 0 none;
     overflow: hidden;
     box-sizing: content-box;
+}
+
+
+table {
+    padding: 0;
+    word-break: initial;
+    background-color: var(--table-bg-color);
+}
+table tr {
+    border-top: .1em solid var(--table-border-color);
+    margin: 0;
+    padding: 0;
+}
+table th {
+    font-weight: bold;
+    border: .1em solid var(--table-border-color);
+    border-bottom: 0;
+    margin: 0;
+    padding: 6px 13px;
+}
+table td {
+    border: .1em solid var(--table-border-color);
+    margin: 0;
+    padding: 6px 13px;
+}
+table thead {
+    background-color: var(--table-header-bg-color);
+}
+table tr:nth-child(2n) {
+    background-color: var(--table-n2-bg-color);
+}
+table tr th:first-child,
+table tr td:first-child {
+    margin-top: 0;
+}
+table tr th:last-child,
+table tr td:last-child {
+    margin-bottom: 0;
 }
