@@ -197,3 +197,14 @@ table tr th:last-child,
 table tr td:last-child {
     margin-bottom: 0;
 }
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--title-font);
+    position: relative;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    font-weight: bold;
+    line-height: 1.4;
+    cursor: text;
+    color: var(--title-color);
+}
