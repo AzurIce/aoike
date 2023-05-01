@@ -2,7 +2,8 @@
 
 {% from 'components/category-card.html' import category_card %}
 
-{% block content %}
+{% block main %}
+<div class="main">
     <div class="tag-cloud" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center">
         {% for tag, post in tags.items() %}
             {% set factor = 1 + [tags[tag] | length, 20] | min * 0.05 %}
@@ -18,4 +19,5 @@
             {{ category_card(category, posts) }}
         {% endfor %}
     </div>
+</div>
 {% endblock %}
