@@ -4,7 +4,7 @@ import tempfile
 log = logging.getLogger(__name__)
 
 
-def serve():
+def serve(*, src_dir):
     """
     start the Aoike development server
     """

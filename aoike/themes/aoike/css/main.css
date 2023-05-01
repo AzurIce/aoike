@@ -26,8 +26,16 @@
     flex-direction: column;
     align-items: center;
     gap: 20px;
-    margin-top: 20px;
-    width: 70%;
+    width: 100%;
+    height: 20rem;
+    padding: 100px 0;
+    background-image: url("../images/wallhaven-5weyz8.jpg");
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.title {
+    color: #ffffff;
 }
 
 .content {
