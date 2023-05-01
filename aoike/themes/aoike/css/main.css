@@ -1,5 +1,6 @@
-@import "variables.css";
 @import "font.css";
+@import "variables.css";
+@import "github-markdown.css";
 @import "highlight.css";
 
 .navbar {
@@ -22,6 +23,7 @@
 }
 
 .header {
+    color: #ffffff;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -34,13 +36,14 @@
     background-repeat: no-repeat;
 }
 
-.title {
-    color: #ffffff;
+.moveup {
+    margin-top: -2rem;
 }
 
-.content {
-    width: 70%;
-    margin-top: 2rem;
+
+.main {
+    width: 65%;
+    background-color: white;
     padding: 2rem 10%;
     /*display: block;*/
     display: flex;
@@ -50,15 +53,20 @@
     box-sizing: border-box;
     border-radius: 0.5rem;
     box-shadow: 0 12px 15px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+
+    /* font-size: 1rem; */
+    /* font-size: 16px; */
+    line-height: 1.6;
+    letter-spacing: 0.02em;
 }
 
-.content img {
-    max-width: 100%;
+.markdown-body {
+
 }
 
-:not(pre)>code {
+.markdown-body :not(pre)>code {
     background-color: #f6f6f6;
-    /*color: #bbbbbb;*/
+    color: #d63200;
     padding: 0 4px;
     border-radius: 4px;
 }
@@ -169,50 +177,18 @@ hr {
 }
 
 
-table {
-    padding: 0;
-    word-break: initial;
-    background-color: var(--table-bg-color);
-}
-table tr {
-    border-top: .1em solid var(--table-border-color);
-    margin: 0;
-    padding: 0;
-}
-table th {
-    font-weight: bold;
-    border: .1em solid var(--table-border-color);
-    border-bottom: 0;
-    margin: 0;
-    padding: 6px 13px;
-}
-table td {
-    border: .1em solid var(--table-border-color);
-    margin: 0;
-    padding: 6px 13px;
-}
-table thead {
-    background-color: var(--table-header-bg-color);
-}
-table tr:nth-child(2n) {
-    background-color: var(--table-n2-bg-color);
-}
-table tr th:first-child,
-table tr td:first-child {
-    margin-top: 0;
-}
-table tr th:last-child,
-table tr td:last-child {
-    margin-bottom: 0;
+.markdown-body img {
+    max-width: 90%;
+    margin: 1.5rem auto;
+    display: block;
+    box-shadow: 0 5px 11px 0 rgba(0,0,0,0.18), 0 4px 15px 0 rgba(0,0,0,0.15);
+    border-radius: 3px;
+    background-color: transparent;
 }
 
 h1, h2, h3, h4, h5, h6 {
-    font-family: var(--title-font);
-    position: relative;
-    margin-top: 2rem;
-    margin-bottom: 1rem;
-    font-weight: bold;
-    line-height: 1.4;
-    cursor: text;
-    color: var(--title-color);
+    /*color: #ffffff;*/
+    margin-bottom: 0.75em;
+    margin-top: 2em;
 }
+

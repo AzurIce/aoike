@@ -5,17 +5,21 @@
 {%- endblock %}
 
 
-{% block content %}
-    <h1>{{ meta.title }}</h1>
-    Create: {{ meta['create'] }}<br/>
-    Update: {{ meta['update'] }}<br/>
-    {% if meta.tags | length %}
+{% block main %}
+<div class="main">
+    <div class="markdown-body">
+        <h1>{{ meta.title }}</h1>
+        Create: {{ meta['create'] }}<br/>
+        Update: {{ meta['update'] }}<br/>
+        {% if meta.tags | length %}
         <div style="display: flex; gap: 2px;">
             Tags: {% for tag in meta.tags %}
             <span>{{ tag }}</span>
-        {% endfor %}
+            {% endfor %}
         </div>
-    {% endif %}
-    {{ content }}
+        {% endif %}
+        {{ content }}
+    </div>
     {% include "components/comment.html" %}
+</div>
 {% endblock %}
