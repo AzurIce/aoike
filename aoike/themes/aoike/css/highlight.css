@@ -9,8 +9,17 @@
     font-family: var(--font-family-mono)!important;
 }
 
-.code pre code {
-    font-family: var(--font-family-mono)!important;
+
+.markdown-body :not(pre)>code {
+    background-color: #f6f6f6;
+    color: #d63200;
+    padding: 0 4px;
+    border-radius: 4px;
+}
+
+.markdown-body code, .markdown-body pre {
+    font-family: var(--font-family-mono);
+    letter-spacing: 0;
 }
 
 td.code pre {
