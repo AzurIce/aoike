@@ -3,6 +3,7 @@ use std::fs;
 use std::fs::{copy, create_dir_all, DirEntry, try_exists};
 use std::io::ErrorKind::NotFound;
 use std::path::{Path, PathBuf};
+use pulldown_cmark::{html, Options, Parser};
 
 const POST_DIR: &str = "posts";
 const SITE_DIR: &str = "site";
@@ -13,7 +14,7 @@ pub fn build(src_dir: &PathBuf) {
     let site_dir = src_dir.join(SITE_DIR);
     println!("building with src_dir={src_dir:?}");
 
-    fs::remove_dir_all(site_dir).expect("Clean failed");
+    fs::remove_dir_all(&site_dir).expect("Clean failed");
 
     let files = get_files(&post_dir).expect("Get files failed");
     println!("{files:?}");
@@ -22,13 +23,27 @@ pub fn build(src_dir: &PathBuf) {
         // println!("{path:?}");
         let dst_path = site_dir.join(src_path.strip_prefix(&post_dir).unwrap());
         // println!("{path:?}");
+
+        let parent = dst_path.parent().expect("Get Parent failed");
+        if !try_exists(parent).expect("Try exist failed") {
+            create_dir_all(parent).expect("Create dir failed");
+        }
+
         if entry.path().extension().map(|s| s == "md").unwrap_or(false) {
+            let dst_path = dst_path.with_extension("html");
+            let markdown = fs::read_to_string(src_path).expect("Failed to read markdown file");
+            let mut options = Options::empty();
+            options.insert(Options::ENABLE_STRIKETHROUGH);
+            options.insert(Options::ENABLE_TABLES);
+            options.insert(Options::ENABLE_TASKLISTS);
+            let parser = Parser::new_ext(&markdown, options);
+
+            let mut html = String::new();
+            html::push_html(&mut html, parser);
+
+            fs::write(dst_path, html).expect("Failed to write html file");
             println!("{entry:?}")
         } else {
-            let parent = dst_path.parent().expect("Get Parent failed");
-            if !try_exists(parent).expect("Try exist failed") {
-                create_dir_all(parent).expect("Create dir failed");
-            }
             copy(src_path, dst_path).expect("Copy file failed");
         }
     }

@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 clap = { version = "4.3.8", features = [ "cargo", "derive" ] }
+pulldown-cmark = "0.9.3"
