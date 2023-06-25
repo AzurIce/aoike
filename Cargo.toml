@@ -10,4 +10,5 @@ clap = { version = "4.3.8", features = [ "cargo", "derive" ] }
 lazy_static = "1.4.0"
 pathdiff = "0.2.1"
 pulldown-cmark = "0.9.3"
+serde = { version = "1.0.164", features = [ "derive" ] }
 tera = "1"
