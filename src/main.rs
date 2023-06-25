@@ -4,7 +4,7 @@ pub mod commands;
 pub mod structures;
 
 use std::path::PathBuf;
-use clap::{Parser, Subcommand, arg, Command, command, value_parser};
+use clap::{Parser, Subcommand, arg, command};
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None, arg_required_else_help(true))]
