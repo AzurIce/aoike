@@ -1,4 +1,8 @@
 {
+    "imports": {
+        "vite": "npm:vite",
+        "@vitejs/plugin-vue": "npm:@vitejs/plugin-vue"
+    },
     "tasks": {
         "run": "deno run -A mod.ts -- "
     }

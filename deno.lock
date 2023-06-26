@@ -6,6 +6,7 @@
   "npm": {
     "specifiers": {
       "@vitejs/plugin-vue": "@vitejs/plugin-vue@4.2.3_vite@4.3.9_vue@3.3.4",
+      "kolorist": "kolorist@1.8.0",
       "vite": "vite@4.3.9"
     },
     "packages": {
@@ -230,6 +231,10 @@
       },
       "fsevents@2.3.2": {
         "integrity": "sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==",
+        "dependencies": {}
+      },
+      "kolorist@1.8.0": {
+        "integrity": "sha512-Y+60/zizpJ3HRH8DCss+q95yr6145JXZo46OTpFvDZWLfRCE4qChOyk1b26nMaNpfHHgxagk9dXT5OP0Tfe+dQ==",
         "dependencies": {}
       },
       "magic-string@0.30.0": {
