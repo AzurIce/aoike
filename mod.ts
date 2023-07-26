@@ -7,7 +7,7 @@ import { options, blue, bold, cyan, dim, gray, green, underline, yellow } from '
 
 const viteConfig: InlineConfig = {
   configFile: false, // 禁用 Vite 配置文件自动解析
-  root: "./test",
+  root: "./vue-project",
   plugins: [
     {
       name: "vite-plugin-aoike",
