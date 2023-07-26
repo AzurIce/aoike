@@ -4,6 +4,8 @@
         "@vitejs/plugin-vue": "npm:@vitejs/plugin-vue"
     },
     "tasks": {
-        "run": "deno run -A mod.ts -- "
+        "run": "deno run --watch -A mod.ts -- ",
+        "dev": "deno run --watch -A mod.ts dev",
+        "build": "deno run --watch -A mod.ts build"
     }
 }
