@@ -1,9 +1,5 @@
-use std::{fs, time::SystemTime};
-use std::path::PathBuf;
+use std::{path::PathBuf, fs};
 use pulldown_cmark::{Options, Parser, html};
-use serde::{Serialize, Deserialize};
-use crate::commands::build::POST_DIR;
-
 pub enum SourceFile {
     MarkdownFile(PathBuf),
     OtherFile(PathBuf)
@@ -18,7 +14,7 @@ impl SourceFile {
     }
 }
 
-use chrono::{DateTime, Duration, Utc, Local, NaiveDateTime};
+use chrono::{DateTime, Local, NaiveDateTime};
 
 #[derive(Debug)]
 pub struct Post {
