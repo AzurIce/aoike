@@ -1,85 +1,78 @@
-use std::fs;
-use std::fs::DirEntry;
+use std::{fs, time::SystemTime};
 use std::path::PathBuf;
-use pathdiff::diff_paths;
-use pulldown_cmark::{html, Options, Parser};
+use pulldown_cmark::{Options, Parser, html};
 use serde::{Serialize, Deserialize};
 use crate::commands::build::POST_DIR;
 
+pub enum SourceFile {
+    MarkdownFile(PathBuf),
+    OtherFile(PathBuf)
+}
+
+impl SourceFile {
+    pub fn from(path: PathBuf) -> SourceFile {
+        match path.extension().and_then(|ext| ext.to_str()) {
+            Some("md") => Self::MarkdownFile(path),
+            Some(_) | None => Self::OtherFile(path),
+        }
+    }
+}
+
+use chrono::{DateTime, Duration, Utc, Local, NaiveDateTime};
+
+#[derive(Debug)]
 pub struct Post {
-    pub entry: DirEntry,
-    pub document: Option<String>,
+    pub title: String,
+    pub draft: bool,
+    pub create_time: DateTime<Local>,
+    pub update_time: DateTime<Local>,
+    pub document: String,
+}
+
+impl Default for Post {
+    fn default() -> Self {
+        Post {
+            title: String::new(),
+            draft: false,
+            create_time: DateTime::from_utc(NaiveDateTime::from_timestamp_opt(0, 0).unwrap(), Local::now().offset().clone()),
+            update_time: DateTime::from_utc(NaiveDateTime::from_timestamp_opt(0, 0).unwrap(), Local::now().offset().clone()),
+            document: String::new()
+        }
+    }
 }
 
 impl Post {
-    pub fn from_entry(entry: DirEntry) -> Post {
-        return Post {
-            entry,
-            document: None,
+    pub fn from_path(path: &PathBuf) -> Self {
+        let filename = path.file_name().unwrap().to_str().unwrap().to_string();
+        let title = filename.clone();
+        let document = fs::read_to_string(path).and_then(|content| {
+            
+            let mut options = Options::empty();
+            options.insert(Options::ENABLE_STRIKETHROUGH);
+            options.insert(Options::ENABLE_FOOTNOTES);
+            options.insert(Options::ENABLE_TABLES);
+            options.insert(Options::ENABLE_TASKLISTS);
+            let parser = Parser::new_ext(&content, options);
+            
+            let mut html = String::new();
+            html::push_html(&mut html, parser);
+            Ok(html)
+        }).unwrap();
+
+        Post {
+            title,
+            document,
+            ..Default::default()
         }
-    }
-    pub fn file_path(&self) -> PathBuf {
-        self.entry.path()
-    }
-    pub fn file_name(&self) -> String {
-        self.entry.file_name().to_str().expect("Failed to get name").to_string()
-    }
-    pub fn post_dir(&self) -> PathBuf {
-        let mut post_dir = self.file_path().parent().unwrap().to_path_buf();
-        while !post_dir.ends_with(POST_DIR) {
-            post_dir.pop();
-        }
-        post_dir
-    }
-    pub fn site_dir(&self) -> PathBuf {
-        let mut site_dir = self.post_dir();
-        site_dir.pop();
-        site_dir
-    }
-    pub fn dst_path(&self) -> PathBuf {
-        let dst_path = self.site_dir()
-            .join(diff_paths(self.file_path(), self.post_dir()).unwrap());
-        let dst_path = dst_path.with_extension("html");
-        dst_path
-    }
-    pub fn url(&self) -> String {
-        let url = diff_paths(&self.dst_path(), &self.post_dir()).unwrap()
-            .to_str().unwrap().to_string();
-        url
-    }
-    pub fn content(&self) -> String {
-        if let Some(content) = &self.document {
-            content.to_string()
-        } else {
-            fs::read_to_string(self.file_path()).expect(&*format!("Failed to read file {}", self.file_name()))
-        }
-    }
-    pub fn rendered_content(&self) -> String {
-        let mut options = Options::empty();
-        options.insert(Options::ENABLE_STRIKETHROUGH);
-        options.insert(Options::ENABLE_TABLES);
-        options.insert(Options::ENABLE_TASKLISTS);
-        let content = self.content();
-        let parser = Parser::new_ext(&content, options);
-        let mut html = String::new();
-        html::push_html(&mut html, parser);
-        html
     }
 }
 
-#[derive(Serialize, Deserialize)]
-pub struct PostData {
-    pub url: String,
-    pub raw_content: String,
-    pub rendered_content: String,
-}
-
-impl PostData {
-    pub fn from_post(post: &Post) -> PostData {
-        PostData {
-            url: post.url(),
-            raw_content: post.content(),
-            rendered_content: post.rendered_content(),
-        }
-    }
-}
+// impl PostData {
+//     pub fn from_post(post: &Post) -> PostData {
+//         PostData {
+//             url: post.url(),
+//             raw_content: post.content(),
+//             rendered_content: post.rendered_content(),
+//         }
+//     }
+// }
