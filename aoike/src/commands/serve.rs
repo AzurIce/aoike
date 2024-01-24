@@ -57,6 +57,7 @@ pub fn serve(src_dir: &PathBuf) {
         match res {
             Ok(events) => {
                 // 输出变化事件
+                println!("triggering livereload...");
                 reloader.reload();
             }
             Err(e) => println!("watch error: {:?}", e),

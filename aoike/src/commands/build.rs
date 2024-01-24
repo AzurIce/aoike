@@ -1,5 +1,5 @@
 use std::error::Error;
-use std::fs;
+use std::fs::{self, FileType};
 use std::fs::{copy, create_dir_all, DirEntry, try_exists};
 use std::path::{Path, PathBuf};
 use minijinja::filters::safe;
@@ -24,7 +24,14 @@ pub fn build(src_dir: &PathBuf) {
     // Clean up
     println!("[command/build]: cleaning {site_dir:?}");
     if try_exists(&site_dir).unwrap_or(false) {
-        fs::remove_dir_all(&site_dir).expect("Clean failed");
+        for dir_entry in fs::read_dir(&site_dir).unwrap() {
+            let dir_entry = dir_entry.unwrap();
+            if dir_entry.metadata().unwrap().is_dir() {
+                fs::remove_dir_all(&dir_entry.path()).expect("failed to clean");
+            } else {
+                fs::remove_file(&dir_entry.path()).expect("failed to clean");
+            }
+        }
     }
 
     // // Compile template
