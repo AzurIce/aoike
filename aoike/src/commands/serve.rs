@@ -53,7 +53,7 @@ pub fn serve(src_dir: &PathBuf) {
         .expect("cannot watch themes");
 
     // watcher for livereload
-    let mut debouncer = new_debouncer(Duration::from_secs(1), move |res| {
+    let mut debouncer = new_debouncer(Duration::from_secs_f32(2.5), move |res| {
         match res {
             Ok(events) => {
                 // 输出变化事件

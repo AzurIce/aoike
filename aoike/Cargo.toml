@@ -15,6 +15,7 @@ notify = "6.1.1"
 notify-debouncer-mini = "0.4.1"
 pathdiff = "0.2.1"
 pulldown-cmark = "0.9.3"
+syntect = "5.1.0"
 serde = { version = "1.0.164", features = [ "derive" ] }
 tokio = { version = "1.32.0", features = [ "rt" ] }
 
