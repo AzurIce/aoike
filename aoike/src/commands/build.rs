@@ -52,7 +52,7 @@ pub fn build(src_dir: &PathBuf) {
         if entry.path().extension().map(|s| s == "html").unwrap_or(false) {
             continue;
         }
-        println!("[command/build]: copying theme file from {src_path:?} to {dst_path:?}");
+        // println!("[command/build]: copying theme file from {src_path:?} to {dst_path:?}");
         copy(src_path, dst_path).expect("Copy theme file failed");
     }
 
@@ -79,7 +79,7 @@ pub fn build(src_dir: &PathBuf) {
         match &src_file {
             SourceFile::MarkdownFile(path) => {
                 let dst_path = site_dir.join(rel_path).with_extension("html");
-                println!("[command/build]: building markdown file from {path:?} to {dst_path:?}");
+                // println!("[command/build]: building markdown file from {path:?} to {dst_path:?}");
                 let post = Post::from_path(path);
                 let post_template = env.get_template("post.html").expect("cannot get post template");
                 // println!("{}", post.document);
@@ -102,7 +102,7 @@ pub fn build(src_dir: &PathBuf) {
             },
             SourceFile::OtherFile(path) => {
                 let dst_path = site_dir.join(rel_path);
-                println!("[command/build]: copying file from {path:?} to {dst_path:?}");
+                // println!("[command/build]: copying file from {path:?} to {dst_path:?}");
 
                 let parent = dst_path.parent().expect("Get Parent failed");
                 if !try_exists(parent).expect("Try exist failed") {
@@ -161,6 +161,9 @@ fn get_files(dir: &PathBuf) -> Result<Vec<DirEntry>, Box<dyn Error>> {
         }
 
         if entry.path().is_dir() {
+            if entry.file_name() == "node_modules" {
+                continue;
+            }
             let mut inner_files = get_files(&entry.path())?;
             files.append(&mut inner_files);
         } else {
