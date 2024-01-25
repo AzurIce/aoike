@@ -1,6 +1,6 @@
 use axum::Router;
 use notify::{recommended_watcher, RecommendedWatcher, RecursiveMode, Result, Watcher};
-use notify_debouncer_mini::new_debouncer;
+use notify_debouncer_full::new_debouncer;
 use std::{path::PathBuf, thread::sleep, time::Duration};
 use tower_http::services::ServeDir;
 use tower_livereload::LiveReloadLayer;
@@ -29,7 +29,7 @@ pub fn serve(src_dir: &PathBuf) {
     // 监听，有变化重新 build
     // watcher for building
     let _src_dir = src_dir.clone();
-    let mut debouncer = new_debouncer(Duration::from_secs(2), move |res| {
+    let mut debouncer = new_debouncer(Duration::from_secs(2), None, move |res| {
         match res {
             Ok(events) => {
                 // 输出变化事件
@@ -53,10 +53,9 @@ pub fn serve(src_dir: &PathBuf) {
         .expect("cannot watch themes");
 
     // watcher for livereload
-    let mut debouncer = new_debouncer(Duration::from_secs_f32(2.5), move |res| {
+    let mut debouncer = new_debouncer(Duration::from_secs_f32(2.5), None, move |res| {
         match res {
             Ok(events) => {
-                // 输出变化事件
                 println!("triggering livereload...");
                 reloader.reload();
             }

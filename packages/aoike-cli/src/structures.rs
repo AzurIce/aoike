@@ -54,7 +54,7 @@ impl SourceFile {
 use chrono::{DateTime, Local, NaiveDateTime};
 use syntect::{
     easy::HighlightLines,
-    highlighting::{ThemeSet, Color},
+    highlighting::{Color, ThemeSet},
     html::{
         append_highlighted_html_for_styled_line, highlighted_html_for_string,
         start_highlighted_html_snippet, IncludeBackground,
@@ -90,19 +90,33 @@ impl Default for Post {
     }
 }
 
+fn extract_frontmatter(content: String) -> (Option<String>, String) {
+    if content.starts_with("---\n") {
+        if let Some(fm_end) = content[4..].find("---\n") {
+            let yaml = content[4..fm_end + 4].to_string();
+            let content = content[fm_end + 2 * 4..].to_string();
+            return (Some(yaml), content);
+        }
+    }
+    (None, content)
+}
+
 impl Post {
     pub fn from_path(path: &PathBuf) -> Self {
         let filename = path.file_name().unwrap().to_str().unwrap().to_string();
         let title = filename.clone();
         let document = fs::read_to_string(path)
             .and_then(|content| {
+                let content = content.replace("\r\n", "\n");
                 let mut options = Options::empty();
                 options.insert(Options::ENABLE_STRIKETHROUGH);
                 options.insert(Options::ENABLE_FOOTNOTES);
                 options.insert(Options::ENABLE_TABLES);
                 options.insert(Options::ENABLE_TASKLISTS);
-                let parser = Parser::new_ext(&content, options);
 
+                let (frontmatter, content) = extract_frontmatter(content);
+
+                let parser = Parser::new_ext(&content, options);
                 // https://github.com/raphlinus/pulldown-cmark/issues/167
                 let ss = SyntaxSet::load_defaults_newlines();
                 let ts = ThemeSet::load_defaults();
@@ -122,7 +136,9 @@ impl Post {
                                     .find_syntax_by_token(&lang)
                                     .unwrap_or(ss.find_syntax_plain_text());
                                 let mut highlighter = HighlightLines::new(syntax, theme);
-                                let (mut output, bg) = start_highlighted_html_snippet(theme);
+                                let bg = theme.settings.background.unwrap_or(Color::WHITE);
+                                let mut output = format!("<pre style=\"background-color:#{:02x}{:02x}{:02x};\" class=\"language_{lang}\">\n",bg.r, bg.g, bg.b);
+                                // let (mut output, bg) = start_highlighted_html_snippet(theme);
 
                                 for line in LinesWithEndings::from(&to_highlight) {
                                     output.push_str("<span class=\"line\">");

@@ -1,4 +1,5 @@
 [workspace]
-members = [
-    "aoike",
-]
+members = ["packages/*"]
+
+[workspace.dependencies]
+aoike = { path = "packages/aoike" }

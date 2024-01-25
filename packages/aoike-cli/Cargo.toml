@@ -1,21 +1,23 @@
 [package]
-name = "aoike"
+name = "aoike-cli"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+aoike.workspace = true
 chrono = "0.4.26"
 clap = { version = "4.3.23", features = [ "cargo", "derive" ] }
 lazy_static = "1.4.0"
 minijinja = { version = "1.0.6", features = [ "loader" ]}
 minijinja-autoreload = "1.0.6"
 notify = "6.1.1"
-notify-debouncer-mini = "0.4.1"
+notify-debouncer-full = "0.3.1"
 pathdiff = "0.2.1"
 pulldown-cmark = "0.9.3"
 syntect = "5.1.0"
+# katex = "0.4"
 serde = { version = "1.0.164", features = [ "derive" ] }
 tokio = { version = "1.32.0", features = [ "rt" ] }
 
