@@ -7,13 +7,21 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-dioxus = { version = "0.6.0", features = [] }
+dioxus = { version = "0.7.0-rc.0", features = [] }
+# dioxus-logger = "0.7.0-rc.0"
+walkdir = "2.5.0"
+pulldown-cmark = "0.13.0"
+tracing = "0.1.41"
+aoike-macros = { path = "packages/aoike-macros" }
 
 [features]
 default = ["web"]
 web = ["dioxus/web"]
 desktop = ["dioxus/desktop"]
 mobile = ["dioxus/mobile"]
+
+[workspace]
+members = ["packages/aoike-macros"]
 
 [profile]
 
