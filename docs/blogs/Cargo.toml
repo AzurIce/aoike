@@ -1,0 +1,19 @@
+[package]
+name = "blogs"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+dioxus = "0.7.0-alpha.2"
+aoike = { path = "../.." }
+
+[build-dependencies]
+pulldown-cmark = "0.13.0"
+dioxus-rsx-rosetta = "0.7.0-alpha.2"
+dioxus-autofmt = "0.7.0-alpha.2"
+aoike = { path = "../..", features = ["to_token"]}
+walkdir = "2.5.0"
+syn = "2.0.106"
+quote = "1.0.40"
+prettyplease = "0.2.37"
+proc-macro2 = "1.0.101"

@@ -1,35 +1,31 @@
-use std::path::{Path, PathBuf};
+pub mod app;
+
+use std::{fmt::Debug, sync::Arc};
 
 use dioxus::prelude::*;
 
-#[derive(Clone)]
-pub struct AoikeContext {
-    pub root_dir: PathBuf,
-    pub cmark_options: pulldown_cmark::Options,
-}
-
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Site {
-    pub root_dir: PathBuf,
     pub blogs: Vec<BlogMeta>,
 }
 
-#[derive(Debug)]
-pub struct Blogs {}
-
-#[derive(Props, PartialEq, Clone, Debug)]
+#[derive(Props, Clone)]
 pub struct BlogMeta {
     pub title: String,
-    pub document: String,
+    pub content_fn: Arc<dyn Fn() -> Element + Send + Sync>,
 }
 
-#[component]
-pub fn BlogCard(blog: BlogMeta) -> Element {
-    tracing::info!("Rendered with blog: {blog:?}");
-    rsx! {
-        div {
-            "{blog.title}"
-            "{blog.document}"
-        }
+impl PartialEq for BlogMeta {
+    fn eq(&self, other: &Self) -> bool {
+        self.title == other.title && Arc::ptr_eq(&self.content_fn, &other.content_fn)
+    }
+}
+
+impl Debug for BlogMeta {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("BlogMeta")
+            .field("title", &self.title)
+            .field("content", &"Fn() -> Element")
+            .finish()
     }
 }
