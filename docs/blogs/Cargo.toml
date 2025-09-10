@@ -8,6 +8,7 @@ dioxus = "0.7.0-alpha.2"
 aoike = { path = "../.." }
 
 [build-dependencies]
+slug = "0.1.6"
 pulldown-cmark = "0.13.0"
 dioxus-rsx-rosetta = "0.7.0-alpha.2"
 dioxus-autofmt = "0.7.0-alpha.2"

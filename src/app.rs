@@ -2,7 +2,7 @@ use std::any::Any;
 
 use dioxus::{core::Element, prelude::*};
 
-use crate::{BlogMeta, Site};
+use crate::{BlogData, Site};
 
 #[derive(Default, Clone)]
 pub struct HeaderContext {
@@ -69,6 +69,33 @@ impl App for AoikeApp {
 enum Route {
     #[route("/")]
     Home, // <---- a DogView component must be in scope
+    #[route("/blog/:slug")]
+    Blog { slug: String },
+}
+
+#[component]
+pub fn Blog(slug: String) -> Element {
+    let header_context = consume_context::<HeaderContext>();
+    let blogs = consume_context::<Site>().blogs;
+
+    rsx! {
+        if let Some(href) = header_context.favicon {
+            document::Link { rel: "icon", href }
+        }
+        if let Some(href) = header_context.main_css {
+            document::Link { rel: "stylesheet", href }
+        }
+        if let Some(href) = header_context.tailwind_css {
+            document::Link { rel: "stylesheet", href }
+        }
+
+        div {
+            class: "blogs-container",
+            for blog in blogs {
+                BlogCard { blog }
+            }
+        }
+    }
 }
 
 #[component]
@@ -115,11 +142,12 @@ pub fn Hero() -> Element {
 }
 
 #[component]
-pub fn BlogCard(blog: BlogMeta) -> Element {
+pub fn BlogCard(blog: BlogData) -> Element {
     rsx! {
         div {
+            class: "blog-card",
             "{blog.title}"
-            {blog.content_fn.as_ref()()}
+            {blog.summary_rsx.as_ref()()}
         }
     }
 }
