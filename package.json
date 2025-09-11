@@ -1,0 +1,18 @@
+{
+  "scripts": {
+    "dev": "unocss --watch",
+    "build": "unocss"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@iconify-json/fa6-brands": "^1.2.5",
+    "@iconify-json/mdi": "^1.2.3",
+    "@unocss/cli": "^66.5.1",
+    "@unocss/preset-attributify": "^66.5.1",
+    "@unocss/preset-icons": "^66.5.1",
+    "@unocss/preset-typography": "^66.5.1",
+    "@unocss/preset-web-fonts": "^66.5.1",
+    "@unocss/preset-wind4": "^66.5.1",
+    "unocss": "^66.5.1"
+  }
+}

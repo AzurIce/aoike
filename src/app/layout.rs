@@ -4,7 +4,7 @@ use crate::app::{ConfigContext, Route};
 
 // const TAILWIND_CSS: &str = include_str!("../assets/tailwind.css");
 const MAIN_CSS: Asset = asset!("/assets/main.css");
-const TAILWIND_CSS: Asset = asset!("/assets/tailwind.css");
+const UNO_CSS: Asset = asset!("/assets/uno.css");
 
 #[component]
 pub fn Head() -> Element {
@@ -13,7 +13,7 @@ pub fn Head() -> Element {
     rsx! {
         // style { {TAILWIND_CSS} }
         document::Link { rel: "stylesheet", href: MAIN_CSS }
-        document::Link { rel: "stylesheet", href: TAILWIND_CSS }
+        document::Link { rel: "stylesheet", href: UNO_CSS }
 
         if let Some(href) = header_context.favicon {
             document::Link { rel: "icon", href }

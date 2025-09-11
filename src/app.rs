@@ -238,7 +238,7 @@ pub fn Home() -> Element {
                                 class: "flex gap-8",
                                 span {
                                     class: "text-gray-600",
-                                    "{blog.created.year()}-{blog.created.month()}-{blog.created.day()}"
+                                    "{blog.created.year()}-{u8::from(blog.created.month())}-{blog.created.day()}"
                                 }
                                 a {
                                     class: "underline hover:underline-gray-400",
