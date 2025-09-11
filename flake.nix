@@ -29,10 +29,10 @@
           buildInputs = with pkgs; [ clang ] ++ [ rust-tools ];
           packages = [
             dioxus-cli.packages.${system}.dioxus-cli
-            libiconv
           ] ++ (with pkgs; [
             wasm-bindgen-cli
             tailwindcss
+            libiconv
           ]);
         };
       });

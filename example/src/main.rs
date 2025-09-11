@@ -1,5 +1,6 @@
 use aoike::{
-    Site, app::{AoikeApp, App, HeaderContext}
+    app::{AoikeApp, App, ConfigContext},
+    RsxFn, Site,
 };
 use dioxus::prelude::*;
 
@@ -14,10 +15,14 @@ fn main() {
         .with_context(Site {
             blogs: blogs::BLOGS.clone(),
         })
-        .with_context(HeaderContext {
+        .with_context(ConfigContext {
             favicon: Some(FAVICON),
-            main_css: Some(MAIN_CSS),
-            tailwind_css: Some(TAILWIND_CSS),
+            extra_head: Some(RsxFn::new(|| {
+                rsx! {
+                    document::Link { rel: "stylesheet", href: MAIN_CSS }
+                    document::Link { rel: "stylesheet", href: TAILWIND_CSS }
+                }
+            })),
         })
         .launch();
     // dioxus::launch(App);

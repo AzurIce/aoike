@@ -2,13 +2,12 @@ use std::any::Any;
 
 use dioxus::{core::Element, prelude::*};
 
-use crate::{BlogData, Site};
+use crate::{BlogData, RsxFn, Site};
 
 #[derive(Default, Clone)]
-pub struct HeaderContext {
+pub struct ConfigContext {
     pub favicon: Option<Asset>,
-    pub main_css: Option<Asset>,
-    pub tailwind_css: Option<Asset>,
+    pub extra_head: Option<RsxFn>,
 }
 
 pub trait App {
@@ -68,51 +67,66 @@ impl App for AoikeApp {
 #[derive(Routable, Clone, PartialEq)]
 enum Route {
     #[route("/")]
-    Home, // <---- a DogView component must be in scope
+    Home,
     #[route("/blog/:slug")]
     Blog { slug: String },
+    #[route("/404")]
+    NotFound,
 }
 
+// const TAILWIND_CSS: &str = include_str!("../assets/tailwind.css");
+const TAILWIND_CSS: Asset = asset!("/assets/tailwind.css");
+
 #[component]
-pub fn Blog(slug: String) -> Element {
-    let header_context = consume_context::<HeaderContext>();
-    let blogs = consume_context::<Site>().blogs;
+pub fn Head() -> Element {
+    let header_context = consume_context::<ConfigContext>();
 
     rsx! {
+        // style { {TAILWIND_CSS} }
+        document::Link { rel: "stylesheet", href: TAILWIND_CSS }
+
         if let Some(href) = header_context.favicon {
             document::Link { rel: "icon", href }
         }
-        if let Some(href) = header_context.main_css {
-            document::Link { rel: "stylesheet", href }
-        }
-        if let Some(href) = header_context.tailwind_css {
-            document::Link { rel: "stylesheet", href }
-        }
-
-        div {
-            class: "blogs-container",
-            for blog in blogs {
-                BlogCard { blog }
-            }
+        if let Some(extra_head) = header_context.extra_head {
+            {extra_head.as_ref()()}
         }
     }
 }
 
 #[component]
+pub fn Blog(slug: String) -> Element {
+    let blogs = consume_context::<Site>().blogs;
+
+    let blog = blogs.iter().find(|b| b.slug == slug);
+    let Some(blog) = blog else {
+        navigator().replace(Route::NotFound);
+        return rsx! {};
+    };
+
+    rsx! {
+        Head {}
+
+        div {
+            class: "content",
+            {blog.content_rsx.as_ref()()}
+        }
+    }
+}
+
+#[component]
+pub fn NotFound() -> Element {
+    rsx! {
+        h1 { "404 Not Found" }
+    }
+}
+
+#[component]
 pub fn Home() -> Element {
-    let header_context = consume_context::<HeaderContext>();
     let blogs = consume_context::<Site>().blogs;
 
     rsx! {
-        if let Some(href) = header_context.favicon {
-            document::Link { rel: "icon", href }
-        }
-        if let Some(href) = header_context.main_css {
-            document::Link { rel: "stylesheet", href }
-        }
-        if let Some(href) = header_context.tailwind_css {
-            document::Link { rel: "stylesheet", href }
-        }
+        Head {}
 
         div {
             class: "blogs-container",
@@ -145,9 +159,12 @@ pub fn Hero() -> Element {
 pub fn BlogCard(blog: BlogData) -> Element {
     rsx! {
         div {
-            class: "blog-card",
-            "{blog.title}"
-            {blog.summary_rsx.as_ref()()}
+            class: "blog-card p-2",
+            onclick: move |_| {
+                navigator().push(format!("blog/{}", blog.slug));
+            },
+            h1 { "{blog.title}" },
+            div { class: "summary", {blog.summary_rsx.as_ref()()} }
         }
     }
 }

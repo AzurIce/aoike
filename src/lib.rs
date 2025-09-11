@@ -1,4 +1,7 @@
 pub mod app;
+pub mod components {
+    pub mod giscus;
+}
 
 use std::{fmt::Debug, sync::Arc};
 

@@ -21,6 +21,9 @@ tracing = "0.1.41"
 quote = { version = "1.0.40", optional = true }
 proc-macro2 = { version = "1.0.101", optional = true }
 
+[build-dependencies]
+dioxus-tailwindcss = "0.8.0"
+
 [profile]
 
 [profile.wasm-dev]
