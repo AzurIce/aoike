@@ -29,11 +29,13 @@ struct Blog {
     title: String,
     summary_html: String,
     content_html: String,
+    created: i64,
+    updated: i64,
 }
 
 impl ToTokens for Blog {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let Blog { slug, title, summary_html, content_html } = self;
+        let Blog { slug, title, summary_html, content_html, created, updated } = self;
         let summary_rsx = TokenStream::from_str(&html_to_rsx(&summary_html)).unwrap();
         let content_rsx = TokenStream::from_str(&html_to_rsx(&content_html)).unwrap();
         tokens.extend(quote::quote! {
@@ -42,6 +44,8 @@ impl ToTokens for Blog {
                 slug: #slug.to_string(),
                 summary_rsx: aoike::RsxFn::new(|| rsx! { #summary_rsx }),
                 content_rsx: aoike::RsxFn::new(|| rsx! { #content_rsx }),
+                created: aoike::time::UtcDateTime::from_unix_timestamp(#created).unwrap(),
+                updated: aoike::time::UtcDateTime::from_unix_timestamp(#updated).unwrap(),
             }
         });
     }
@@ -111,10 +115,46 @@ fn parse_blogs(dir: impl AsRef<Path>) -> Vec<Blog> {
         // let summary_html = content_html.clone();
         
 
-        blogs.push(Blog { title, slug, summary_html, content_html });
+        let created = git_created_ts(entry.path());
+        let updated = git_updated_ts(entry.path());
+
+        blogs.push(Blog { title, slug, summary_html, content_html, created, updated });
     }
 
     blogs
+}
+
+fn git_updated_ts(path: &Path) -> i64 {
+    use std::process::Command;
+    let output = Command::new("git")
+        .arg("log")
+        .arg("-1")
+        .arg("--format=%ct")
+        .arg(path)
+        .output();
+    parse_git_ts(output)
+}
+
+fn git_created_ts(path: &Path) -> i64 {
+    use std::process::Command;
+    let output = Command::new("git")
+        .arg("log")
+        .arg("--diff-filter=A")
+        .arg("-1")
+        .arg("--format=%ct")
+        .arg(path)
+        .output();
+    parse_git_ts(output)
+}
+
+fn parse_git_ts(output: std::io::Result<std::process::Output>) -> i64 {
+    match output {
+        Ok(out) if out.status.success() => {
+            let s = String::from_utf8_lossy(&out.stdout).trim().to_string();
+            s.parse::<i64>().unwrap_or(0)
+        }
+        _ => 0,
+    }
 }
 
 fn html_to_rsx(html: &str) -> String {
@@ -261,3 +301,4 @@ pub fn extract_html_summary(html: &str, max_text_len: usize) -> String {
 
     out
 }
+

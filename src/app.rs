@@ -1,14 +1,10 @@
+pub mod layout;
+
 use std::any::Any;
 
 use dioxus::{core::Element, prelude::*};
 
-use crate::{BlogData, RsxFn, Site};
-
-#[derive(Default, Clone)]
-pub struct ConfigContext {
-    pub favicon: Option<Asset>,
-    pub extra_head: Option<RsxFn>,
-}
+use crate::{app::layout::Base, BlogData, RsxFn, Site};
 
 pub trait App {
     fn builder(self) -> LaunchBuilder;
@@ -20,6 +16,19 @@ pub trait App {
     {
         self.builder().launch(Self::app);
     }
+}
+
+#[derive(Default, Clone)]
+pub struct ConfigContext {
+    pub title: Option<String>,
+    pub desc: Option<String>,
+    pub email: Option<String>,
+    pub favicon: Option<Asset>,
+    pub avatar: Option<Asset>,
+    pub github_owner: Option<String>,
+    pub bilibili_url: Option<String>,
+    pub steam_url: Option<String>,
+    pub extra_head: Option<RsxFn>,
 }
 
 // MARK: AoikeApp
@@ -66,32 +75,15 @@ impl App for AoikeApp {
 
 #[derive(Routable, Clone, PartialEq)]
 enum Route {
+    #[layout(Base)]
     #[route("/")]
     Home,
+    #[layout(Base)]
     #[route("/blog/:slug")]
     Blog { slug: String },
+    #[layout(Base)]
     #[route("/404")]
     NotFound,
-}
-
-// const TAILWIND_CSS: &str = include_str!("../assets/tailwind.css");
-const TAILWIND_CSS: Asset = asset!("/assets/tailwind.css");
-
-#[component]
-pub fn Head() -> Element {
-    let header_context = consume_context::<ConfigContext>();
-
-    rsx! {
-        // style { {TAILWIND_CSS} }
-        document::Link { rel: "stylesheet", href: TAILWIND_CSS }
-
-        if let Some(href) = header_context.favicon {
-            document::Link { rel: "icon", href }
-        }
-        if let Some(extra_head) = header_context.extra_head {
-            {extra_head.as_ref()()}
-        }
-    }
 }
 
 #[component]
@@ -105,10 +97,8 @@ pub fn Blog(slug: String) -> Element {
     };
 
     rsx! {
-        Head {}
-
         div {
-            class: "content",
+            class: "markdown",
             {blog.content_rsx.as_ref()()}
         }
     }
@@ -122,36 +112,152 @@ pub fn NotFound() -> Element {
 }
 
 #[component]
-pub fn Home() -> Element {
-    let blogs = consume_context::<Site>().blogs;
+pub fn Hero() -> Element {
+    let config = consume_context::<ConfigContext>();
 
     rsx! {
-        Head {}
-
         div {
-            class: "blogs-container",
-            for blog in blogs {
-                BlogCard { blog }
+            class: "flex items-stretch",
+            {config.avatar.map(|a| {
+                rsx! {
+                    img {class: "size-40 rounded", src: "{a}"}
+                }
+            })}
+            div {
+                class: "flex flex-col items-center justify-around p-2 p-b-1 gap-3",
+                // 标题
+                {
+                    let title = config.title.as_deref().unwrap_or("Site Title");
+                    rsx! {
+                        span {
+                            class: "text-xl lxgw",
+                            "< {title} />"
+                        }
+                    }
+                }
+                // 描述
+                {
+                    let desc = config.desc.as_deref().unwrap_or("site description");
+                    rsx! {
+                        span {
+                            class: "text-sm lxgw",
+                            "{desc}"
+                        }
+                    }
+                }
+                // 邮箱
+                {
+                    config.email.map(|mail| {
+                        rsx! {
+                            span {
+                                class: "text-sm",
+                                "📫 "
+                                a {
+                                    class: "underline",
+                                    href: "mailto:{mail}",
+                                    "{mail}"
+                                }
+                            }
+                        }
+                    })
+                }
+                // 社交媒体链接
+                div {
+                    class: "flex",
+                    // GitHub
+                    {
+                        config.github_owner.map(|owner| {
+                            rsx! {
+                                a {
+                                    href: "https://github.com/{owner}",
+                                    target: "_blank",
+                                    rel: "noreferrer",
+                                    class: "size-8 gap-1 nav-btn",
+                                    div {
+                                        class: "i-fa6-brands-github text-xl"
+                                    }
+                                }
+                            }
+                        })
+                    }
+                    // Bilibili
+                    {
+                        config.bilibili_url.map(|url| {
+                            rsx! {
+                                a {
+                                    href: "{url}",
+                                    target: "_blank",
+                                    rel: "noreferrer",
+                                    class: "size-8 gap-1 nav-btn",
+                                    div {
+                                        class: "i-fa6-brands-bilibili text-xl color-[#19a2d4] translate-x-0 translate-y-[1px]"
+                                    }
+                                }
+                            }
+                        })
+                    }
+                    // Steam
+                    {
+                        config.steam_url.map(|url| {
+                            rsx! {
+                                a {
+                                    href: "{url}",
+                                    target: "_blank",
+                                    rel: "noreferrer",
+                                    class: "size-8 gap-1 nav-btn",
+                                    div {
+                                        class: "i-fa6-brands-steam text-xl bg-[#082256]"
+                                    }
+                                }
+                            }
+                        })
+                    }
+                }
             }
         }
     }
 }
 
 #[component]
-pub fn Hero() -> Element {
+pub fn Home() -> Element {
+    let mut blogs = consume_context::<Site>().blogs;
+    blogs.sort_by(|a, b| b.created.cmp(&a.created));
+
     rsx! {
+        Hero {}
+
         div {
-            id: "hero",
-            // img { src: HEADER_SVG, id: "header" }
-            div { id: "links",
-                a { href: "https://dioxuslabs.com/learn/0.6/", "📚 Learn Dioxus" }
-                a { href: "https://dioxuslabs.com/awesome", "🚀 Awesome Dioxus" }
-                a { href: "https://github.com/dioxus-community/", "📡 Community Libraries" }
-                a { href: "https://github.com/DioxusLabs/sdk", "⚙️ Dioxus Development Kit" }
-                a { href: "https://marketplace.visualstudio.com/items?itemName=DioxusLabs.dioxus", "💫 VSCode Extension" }
-                a { href: "https://discord.gg/XgGxMSkvUM", "👋 Community Discord" }
+            class: "flex flex-col w-full p-2 markdown",
+            h2 { "最新文章" }
+            ul {
+                {
+                    let latest_blogs = blogs.iter().take(5).collect::<Vec<_>>();
+                    rsx! {
+                        for blog in latest_blogs {
+                            li {
+                                class: "flex gap-8",
+                                span {
+                                    class: "text-gray-600",
+                                    "{blog.created.year()}-{blog.created.month()}-{blog.created.day()}"
+                                }
+                                a {
+                                    class: "underline hover:underline-gray-400",
+                                    href: format!("/blog/{}", blog.slug),
+                                    "{blog.title}"
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
+
+        // div {
+        //     class: "blogs-container flex flex-col gap-2",
+        //     for blog in blogs {
+        //         BlogCard { blog }
+        //     }
+        // }
     }
 }
 
@@ -159,7 +265,7 @@ pub fn Hero() -> Element {
 pub fn BlogCard(blog: BlogData) -> Element {
     rsx! {
         div {
-            class: "blog-card p-2",
+            class: "blog-card p-2 rounded border hover:border-slate-500",
             onclick: move |_| {
                 navigator().push(format!("blog/{}", blog.slug));
             },

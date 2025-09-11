@@ -16,13 +16,14 @@ members = ["docs/blogs", "example"]
 aoike = { path = "." }
 
 [dependencies]
+time = { version = "0.3.43", features = ["wasm-bindgen"] }
 dioxus = { version = "0.7.0-alpha.3", features = ["web", "router"] }
 tracing = "0.1.41"
 quote = { version = "1.0.40", optional = true }
 proc-macro2 = { version = "1.0.101", optional = true }
 
 [build-dependencies]
-dioxus-tailwindcss = "0.8.0"
+sass-rs = "0.2.2"
 
 [profile]
 

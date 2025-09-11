@@ -1,3 +1,4 @@
+pub mod utils;
 pub mod app;
 pub mod components {
     pub mod giscus;
@@ -6,6 +7,9 @@ pub mod components {
 use std::{fmt::Debug, sync::Arc};
 
 use dioxus::prelude::*;
+pub use time;
+
+use time::UtcDateTime;
 
 #[derive(Debug, Clone)]
 pub struct Site {
@@ -47,6 +51,8 @@ pub struct BlogData {
     pub slug: String,
     pub summary_rsx: RsxFn,
     pub content_rsx: RsxFn,
+    pub created: UtcDateTime,
+    pub updated: UtcDateTime,
 }
 
 impl Debug for BlogData {

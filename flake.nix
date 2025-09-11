@@ -30,6 +30,7 @@
           packages = [
             dioxus-cli.packages.${system}.dioxus-cli
           ] ++ (with pkgs; [
+            # nodejs_24
             wasm-bindgen-cli
             tailwindcss
             libiconv
