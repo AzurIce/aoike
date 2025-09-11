@@ -21,6 +21,10 @@ fn main() {
             email: Some("973562770@qq.com".to_string()),
             favicon: Some(FAVICON),
             avatar: Some(AVATAR),
+            github_owner: Some("AzurIce".to_string()),
+            github_repo: Some("azurice.github.io".to_string()),
+            bilibili_url: Some("https://space.bilibili.com/46452693".to_string()),
+            steam_url: Some("https://steamcommunity.com/id/AzurIce".to_string()),
             extra_head: Some(RsxFn::new(|| {
                 rsx! {
                     document::Link { rel: "stylesheet", href: MAIN_CSS }

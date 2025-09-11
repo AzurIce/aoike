@@ -26,6 +26,7 @@ pub struct ConfigContext {
     pub favicon: Option<Asset>,
     pub avatar: Option<Asset>,
     pub github_owner: Option<String>,
+    pub github_repo: Option<String>,
     pub bilibili_url: Option<String>,
     pub steam_url: Option<String>,
     pub extra_head: Option<RsxFn>,
@@ -78,16 +79,24 @@ enum Route {
     #[layout(Base)]
     #[route("/")]
     Home,
-    #[layout(Base)]
-    #[route("/blog/:slug")]
-    Blog { slug: String },
-    #[layout(Base)]
+    #[route("/posts")]
+    Posts,
+    #[route("/posts/:slug")]
+    Post { slug: String },
     #[route("/404")]
     NotFound,
 }
 
 #[component]
-pub fn Blog(slug: String) -> Element {
+pub fn Posts() -> Element {
+    let blogs = consume_context::<Site>().blogs;
+
+    rsx! {
+    }
+}
+
+#[component]
+pub fn Post(slug: String) -> Element {
     let blogs = consume_context::<Site>().blogs;
 
     let blog = blogs.iter().find(|b| b.slug == slug);
@@ -104,6 +113,7 @@ pub fn Blog(slug: String) -> Element {
     }
 }
 
+// MARK: Notfound
 #[component]
 pub fn NotFound() -> Element {
     rsx! {
@@ -242,7 +252,7 @@ pub fn Home() -> Element {
                                 }
                                 a {
                                     class: "underline hover:underline-gray-400",
-                                    href: format!("/blog/{}", blog.slug),
+                                    href: format!("/posts/{}", blog.slug),
                                     "{blog.title}"
                                 }
                             }

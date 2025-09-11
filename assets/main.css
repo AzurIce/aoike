@@ -1,4 +1,9 @@
 @charset "UTF-8";
+:root {
+  --accent-color: #f67c91;
+  --accent-color-light: color-mix(in srgb, var(--accent-color) 60%, white);
+  --gray: #cccccc; }
+
 @counter-style emoticon {
   system: cyclic;
   symbols: "(´▽`ʃ♡ƪ)" "ヾ(^▽^*)))" "ԅ(¯﹃¯ԅ)" "φ(゜▽゜*)♪" "_(:з)∠)_" "(*/ω＼*)" "(❁´◡`❁)" "Ψ(￣∀￣)Ψ" "～(∠・ω< )⌒☆"; }
