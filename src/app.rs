@@ -230,8 +230,7 @@ pub fn Hero() -> Element {
 
 #[component]
 pub fn Home() -> Element {
-    let mut blogs = consume_context::<Site>().blogs;
-    blogs.sort_by(|a, b| b.created.cmp(&a.created));
+    let blogs = consume_context::<Site>().blogs;
 
     rsx! {
         Hero {}

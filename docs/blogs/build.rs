@@ -14,7 +14,9 @@ fn main() {
         use dioxus::prelude::*;
 
         pub const BLOGS: std::cell::LazyCell<Vec<aoike::BlogData>> = std::cell::LazyCell::new(|| {
-            vec![#(#blogs),*]
+            let mut blogs = vec![#(#blogs),*];
+            blogs.sort_by(|a, b| b.created.cmp(&a.created));
+            blogs
         });
     };
 
