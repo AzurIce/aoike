@@ -97,8 +97,9 @@ pub fn Posts() -> Element {
     let posts = consume_context::<Site>().posts;
 
     rsx! {
+        h1 { "所有文章" }
         for post in posts {
-            BlogCard { post }
+            PostCard { post }
         }
     }
 }
@@ -106,6 +107,7 @@ pub fn Posts() -> Element {
 #[component]
 pub fn Post(slug: String) -> Element {
     let posts = consume_context::<Site>().posts;
+    let config = consume_context::<ConfigContext>();
 
     let post = posts.iter().find(|b| b.slug == slug);
     let Some(post) = post else {
@@ -118,6 +120,10 @@ pub fn Post(slug: String) -> Element {
             class: "markdown",
             {post.content_rsx.as_ref()()}
         }
+
+        {config.giscus_options.map(|options|
+            rsx! { Giscus { options } }
+        )}
     }
 }
 
@@ -267,21 +273,23 @@ pub fn Home() -> Element {
 }
 
 #[component]
-pub fn BlogCard(post: &'static PostData) -> Element {
+pub fn PostCard(post: &'static PostData) -> Element {
     rsx! {
         div {
-            class: "flex flex-col p-2 rounded border border-slate-200 hover:border-slate-400",
+            class: "flex flex-col gap-2 p-2 rounded border border-slate-200 hover:border-slate-400",
             onclick: move |_| {
-                navigator().push(format!("blog/{}", post.slug));
+                navigator().push(format!("/posts/{}", post.slug));
             },
-            h1 { "{post.title}" },
+            h2 { "{post.title}" },
             div {
                 class: "flex gap-2",
                 span {
-                    "Created: {post.created.year()}-{u8::from(post.created.month())}-{post.created.day()}"
+                    class: "text-xs text-gray-400",
+                    "创建日期: {post.created.year()}-{u8::from(post.created.month())}-{post.created.day()}"
                 }
                 span {
-                    "Updated: {post.updated.year()}-{u8::from(post.updated.month())}-{post.updated.day()}"
+                    class: "text-xs text-gray-400",
+                    "更新日期: {post.updated.year()}-{u8::from(post.updated.month())}-{post.updated.day()}"
                 }
             }
             div { class: "summary", {post.summary_rsx.as_ref()()} }

@@ -10,7 +10,7 @@ edition = "2021"
 to_token = ["quote", "proc-macro2"]
 
 [workspace]
-members = ["docs/site", "example"]
+members = ["example-docs/site", "example"]
 
 [workspace.dependencies]
 aoike = { path = "." }
