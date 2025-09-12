@@ -4,7 +4,11 @@ use std::any::Any;
 
 use dioxus::{core::Element, prelude::*};
 
-use crate::{app::layout::Base, BlogData, RsxFn, Site};
+use crate::{
+    app::layout::Base,
+    components::giscus::{Giscus, GiscusOptions, InputPosition},
+    PostData, RsxFn, Site,
+};
 
 pub trait App {
     fn builder(self) -> LaunchBuilder;
@@ -30,6 +34,7 @@ pub struct ConfigContext {
     pub bilibili_url: Option<String>,
     pub steam_url: Option<String>,
     pub extra_head: Option<RsxFn>,
+    pub giscus_options: Option<GiscusOptions>,
 }
 
 // MARK: AoikeApp
@@ -89,18 +94,21 @@ enum Route {
 
 #[component]
 pub fn Posts() -> Element {
-    let blogs = consume_context::<Site>().blogs;
+    let posts = consume_context::<Site>().posts;
 
     rsx! {
+        for post in posts {
+            BlogCard { post }
+        }
     }
 }
 
 #[component]
 pub fn Post(slug: String) -> Element {
-    let blogs = consume_context::<Site>().blogs;
+    let posts = consume_context::<Site>().posts;
 
-    let blog = blogs.iter().find(|b| b.slug == slug);
-    let Some(blog) = blog else {
+    let post = posts.iter().find(|b| b.slug == slug);
+    let Some(post) = post else {
         navigator().replace(Route::NotFound);
         return rsx! {};
     };
@@ -108,7 +116,7 @@ pub fn Post(slug: String) -> Element {
     rsx! {
         div {
             class: "markdown",
-            {blog.content_rsx.as_ref()()}
+            {post.content_rsx.as_ref()()}
         }
     }
 }
@@ -136,92 +144,80 @@ pub fn Hero() -> Element {
             div {
                 class: "flex flex-col items-center justify-around p-2 p-b-1 gap-3",
                 // 标题
-                {
-                    let title = config.title.as_deref().unwrap_or("Site Title");
-                    rsx! {
-                        span {
-                            class: "text-xl lxgw",
-                            "< {title} />"
-                        }
+                {let title = config.title.as_deref().unwrap_or("Site Title");
+                rsx! {
+                    span {
+                        class: "text-xl lxgw",
+                        "< {title} />"
                     }
-                }
+                }}
                 // 描述
-                {
-                    let desc = config.desc.as_deref().unwrap_or("site description");
+                {let desc = config.desc.as_deref().unwrap_or("site description");
+                rsx! {
+                    span {
+                        class: "text-sm lxgw",
+                        "{desc}"
+                    }
+                }}
+                // 邮箱
+                {config.email.map(|mail| {
                     rsx! {
                         span {
-                            class: "text-sm lxgw",
-                            "{desc}"
-                        }
-                    }
-                }
-                // 邮箱
-                {
-                    config.email.map(|mail| {
-                        rsx! {
-                            span {
-                                class: "text-sm",
-                                "📫 "
-                                a {
-                                    class: "underline",
-                                    href: "mailto:{mail}",
-                                    "{mail}"
-                                }
+                            class: "text-sm",
+                            "📫 "
+                            a {
+                                class: "underline",
+                                href: "mailto:{mail}",
+                                "{mail}"
                             }
                         }
-                    })
-                }
+                    }
+                })}
                 // 社交媒体链接
                 div {
                     class: "flex",
                     // GitHub
-                    {
-                        config.github_owner.map(|owner| {
-                            rsx! {
-                                a {
-                                    href: "https://github.com/{owner}",
-                                    target: "_blank",
-                                    rel: "noreferrer",
-                                    class: "size-8 gap-1 nav-btn",
-                                    div {
-                                        class: "i-fa6-brands-github text-xl"
-                                    }
+                    {config.github_owner.map(|owner| {
+                        rsx! {
+                            a {
+                                href: "https://github.com/{owner}",
+                                target: "_blank",
+                                rel: "noreferrer",
+                                class: "size-8 gap-1 nav-btn",
+                                div {
+                                    class: "i-fa6-brands-github text-xl"
                                 }
                             }
-                        })
-                    }
+                        }
+                    })}
                     // Bilibili
-                    {
-                        config.bilibili_url.map(|url| {
-                            rsx! {
-                                a {
-                                    href: "{url}",
-                                    target: "_blank",
-                                    rel: "noreferrer",
-                                    class: "size-8 gap-1 nav-btn",
-                                    div {
-                                        class: "i-fa6-brands-bilibili text-xl color-[#19a2d4] translate-x-0 translate-y-[1px]"
-                                    }
+                    {config.bilibili_url.map(|url| {
+                        rsx! {
+                            a {
+                                href: "{url}",
+                                target: "_blank",
+                                rel: "noreferrer",
+                                class: "size-8 gap-1 nav-btn",
+                                div {
+                                    class: "i-fa6-brands-bilibili text-xl color-[#19a2d4] translate-x-0 translate-y-[1px]"
                                 }
                             }
-                        })
-                    }
+                        }
+                    })}
                     // Steam
-                    {
-                        config.steam_url.map(|url| {
-                            rsx! {
-                                a {
-                                    href: "{url}",
-                                    target: "_blank",
-                                    rel: "noreferrer",
-                                    class: "size-8 gap-1 nav-btn",
-                                    div {
-                                        class: "i-fa6-brands-steam text-xl bg-[#082256]"
-                                    }
+                    {config.steam_url.map(|url| {
+                        rsx! {
+                            a {
+                                href: "{url}",
+                                target: "_blank",
+                                rel: "noreferrer",
+                                class: "size-8 gap-1 nav-btn",
+                                div {
+                                    class: "i-fa6-brands-steam text-xl bg-[#082256]"
                                 }
                             }
-                        })
-                    }
+                        }
+                    })}
                 }
             }
         }
@@ -230,7 +226,8 @@ pub fn Hero() -> Element {
 
 #[component]
 pub fn Home() -> Element {
-    let blogs = consume_context::<Site>().blogs;
+    let site = consume_context::<Site>();
+    let config = consume_context::<ConfigContext>();
 
     rsx! {
         Hero {}
@@ -239,47 +236,55 @@ pub fn Home() -> Element {
             class: "flex flex-col w-full p-2 markdown",
             h2 { "最新文章" }
             ul {
-                {
-                    let latest_blogs = blogs.iter().take(5).collect::<Vec<_>>();
-                    rsx! {
-                        for blog in latest_blogs {
-                            li {
-                                class: "flex gap-8",
-                                span {
-                                    class: "text-gray-600",
-                                    "{blog.created.year()}-{u8::from(blog.created.month())}-{blog.created.day()}"
-                                }
-                                a {
-                                    class: "underline hover:underline-gray-400",
-                                    href: format!("/posts/{}", blog.slug),
-                                    "{blog.title}"
-                                }
+                {let latest_blogs = site.posts.iter().take(5).collect::<Vec<_>>();
+                rsx! {
+                    for blog in latest_blogs {
+                        li {
+                            class: "flex gap-8",
+                            span {
+                                class: "text-gray-600",
+                                "{blog.created.year()}-{u8::from(blog.created.month())}-{blog.created.day()}"
+                            }
+                            a {
+                                class: "underline hover:underline-gray-400",
+                                href: format!("/posts/{}", blog.slug),
+                                "{blog.title}"
                             }
                         }
                     }
-                }
+                }}
             }
+            hr {  }
+            {site.index.content_rsx.as_ref()()}
         }
 
-        // div {
-        //     class: "blogs-container flex flex-col gap-2",
-        //     for blog in blogs {
-        //         BlogCard { blog }
-        //     }
-        // }
+        {config.giscus_options.map(|options| {
+            rsx! {
+                Giscus { options }
+            }
+        })}
     }
 }
 
 #[component]
-pub fn BlogCard(blog: BlogData) -> Element {
+pub fn BlogCard(post: &'static PostData) -> Element {
     rsx! {
         div {
-            class: "blog-card p-2 rounded border hover:border-slate-500",
+            class: "flex flex-col p-2 rounded border border-slate-200 hover:border-slate-400",
             onclick: move |_| {
-                navigator().push(format!("blog/{}", blog.slug));
+                navigator().push(format!("blog/{}", post.slug));
             },
-            h1 { "{blog.title}" },
-            div { class: "summary", {blog.summary_rsx.as_ref()()} }
+            h1 { "{post.title}" },
+            div {
+                class: "flex gap-2",
+                span {
+                    "Created: {post.created.year()}-{u8::from(post.created.month())}-{post.created.day()}"
+                }
+                span {
+                    "Updated: {post.updated.year()}-{u8::from(post.updated.month())}-{post.updated.day()}"
+                }
+            }
+            div { class: "summary", {post.summary_rsx.as_ref()()} }
         }
     }
 }

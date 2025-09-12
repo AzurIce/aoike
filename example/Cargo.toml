@@ -9,7 +9,7 @@ publish = false
 
 [dependencies]
 aoike = { path = "../" }
-blogs = { path = "../docs/blogs" }
+site = { path = "../docs/site" }
 dioxus = { version = "0.7.0-alpha.3", features = [] }
 tracing = "0.1.41"
 

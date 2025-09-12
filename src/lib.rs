@@ -12,7 +12,8 @@ use time::UtcDateTime;
 
 #[derive(Debug, Clone)]
 pub struct Site {
-    pub blogs: Vec<BlogData>,
+    pub posts: &'static [PostData],
+    pub index: &'static PostData,
 }
 
 #[derive(Clone)]
@@ -45,7 +46,7 @@ impl Debug for RsxFn {
 }
 
 #[derive(Props, Clone, PartialEq)]
-pub struct BlogData {
+pub struct PostData {
     pub title: String,
     pub slug: String,
     pub summary_rsx: RsxFn,
@@ -54,7 +55,7 @@ pub struct BlogData {
     pub updated: UtcDateTime,
 }
 
-impl Debug for BlogData {
+impl Debug for PostData {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("BlogMeta")
             .field("title", &self.title)

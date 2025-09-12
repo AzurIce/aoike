@@ -1,8 +1,10 @@
 use aoike::{
     app::{AoikeApp, App, ConfigContext},
+    components::giscus::{GiscusOptions, InputPosition},
     RsxFn, Site,
 };
 use dioxus::prelude::*;
+use tracing::info;
 
 const FAVICON: Asset = asset!("/assets/favicon.ico");
 const MAIN_CSS: Asset = asset!("/assets/main.css");
@@ -10,9 +12,11 @@ const AVATAR: Asset = asset!("/assets/avatar.jpg");
 
 fn main() {
     // dioxus_logger::init(Level::INFO).expect("failed to init logger");
+    info!("{:?}", site::index());
     AoikeApp::default()
         .with_context(Site {
-            blogs: blogs::BLOGS.clone(),
+            posts: site::posts(),
+            index: site::index(),
         })
         .with_context(ConfigContext {
             title: Some("冰弦のBlog".to_string()),
@@ -30,6 +34,17 @@ fn main() {
                     document::Link { rel: "stylesheet", href: MAIN_CSS }
                 }
             })),
+            giscus_options: Some(
+                GiscusOptions::new(
+                    "AzurIce/azurice.github.io".to_string(),
+                    "R_kgDOI7WMeQ".to_string(),
+                    "DIC_kwDOI7WMec4CUE3s".to_string(),
+                )
+                .with_category("Giscus".to_string())
+                .with_reactions_enabled(true)
+                .with_lazy(true)
+                .with_input_position(InputPosition::Top),
+            ),
             ..Default::default()
         })
         .launch();

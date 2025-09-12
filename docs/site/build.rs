@@ -6,18 +6,28 @@ use std::{path::Path, str::FromStr};
 use walkdir::WalkDir;
 
 fn main() {
-    println!("cargo:rerun-if-changed=blogs");
-    let blogs = parse_blogs("blogs");
+    println!("cargo:rerun-if-changed=doc-src");
+    let posts = parse_posts("doc-src/posts");
+    let index = parse_post("doc-src/index.md");
     let out_dir = std::env::current_dir().unwrap().join("src");
 
     let token = quote::quote! {
         use dioxus::prelude::*;
 
-        pub const BLOGS: std::cell::LazyCell<Vec<aoike::BlogData>> = std::cell::LazyCell::new(|| {
-            let mut blogs = vec![#(#blogs),*];
-            blogs.sort_by(|a, b| b.created.cmp(&a.created));
-            blogs
-        });
+        pub fn index() -> &'static aoike::PostData {
+            static INDEX: std::sync::LazyLock<aoike::PostData> = std::sync::LazyLock::new(|| {
+                #index
+            });
+            &INDEX
+        }
+        pub fn posts() -> &'static [aoike::PostData] {
+            static POSTS: std::sync::LazyLock<Vec<aoike::PostData>> = std::sync::LazyLock::new(|| {
+                let mut posts = vec![#(#posts),*];
+                posts.sort_by(|a, b| b.created.cmp(&a.created));
+                posts
+            });
+            &POSTS
+        }
     };
 
     let code = prettyplease::unparse(&syn::parse_quote! {
@@ -26,7 +36,7 @@ fn main() {
     std::fs::write(out_dir.join("docsgen.rs"), code).unwrap();
 }
 
-struct Blog {
+struct Post {
     slug: String,
     title: String,
     summary_html: String,
@@ -35,13 +45,20 @@ struct Blog {
     updated: i64,
 }
 
-impl ToTokens for Blog {
+impl ToTokens for Post {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let Blog { slug, title, summary_html, content_html, created, updated } = self;
+        let Post {
+            slug,
+            title,
+            summary_html,
+            content_html,
+            created,
+            updated,
+        } = self;
         let summary_rsx = TokenStream::from_str(&html_to_rsx(&summary_html)).unwrap();
         let content_rsx = TokenStream::from_str(&html_to_rsx(&content_html)).unwrap();
         tokens.extend(quote::quote! {
-            aoike::BlogData {
+            aoike::PostData {
                 title: #title.to_string(),
                 slug: #slug.to_string(),
                 summary_rsx: aoike::RsxFn::new(|| rsx! { #summary_rsx }),
@@ -53,10 +70,72 @@ impl ToTokens for Blog {
     }
 }
 
-fn parse_blogs(dir: impl AsRef<Path>) -> Vec<Blog> {
+fn parse_post(path: impl AsRef<Path>) -> Post {
+    let path = path.as_ref();
+
+    let filename = path
+        .with_extension("")
+        .file_name()
+        .unwrap()
+        .to_string_lossy()
+        .to_string();
+    let raw_doc = std::fs::read_to_string(path).unwrap();
+
+    let parser = pulldown_cmark::Parser::new(&raw_doc);
+    let mut iterator = pulldown_cmark::TextMergeStream::new(parser);
+
+    let mut heading_start = None;
+    while let Some(e) = iterator.next() {
+        if matches!(
+            e,
+            Event::Start(Tag::Heading {
+                level: HeadingLevel::H1,
+                ..
+            })
+        ) {
+            heading_start = Some(e);
+            break;
+        }
+    }
+    let heading_html = heading_start.map(|_| {
+        let mut html = String::new();
+        pulldown_cmark::html::push_html(
+            &mut html,
+            iterator.take_while(|e| !matches!(e, Event::End(TagEnd::Heading(HeadingLevel::H1)))),
+        );
+        html
+    });
+    let title = heading_html.unwrap_or(filename.clone());
+    let slug = slug::slugify(filename);
+
+    let parser = pulldown_cmark::Parser::new(&raw_doc);
+    let mut content_html = String::new();
+    pulldown_cmark::html::push_html(&mut content_html, parser);
+
+    // 提取 HTML 摘要（前200字符，保持标签完整）
+    let filtered_html = remove_html_tag(&content_html, &["h1"]);
+    // std::fs::write("./test.txt", &content_html);
+    // std::fs::write("./test_filtered.txt", &filtered_html);
+    let summary_html = extract_html_summary(&filtered_html, 200);
+    // let summary_html = filtered_html;
+    // let summary_html = content_html.clone();
+
+    let created = git_created_ts(path);
+    let updated = git_updated_ts(path);
+    Post {
+        title,
+        slug,
+        summary_html,
+        content_html,
+        created,
+        updated,
+    }
+}
+
+fn parse_posts(dir: impl AsRef<Path>) -> Vec<Post> {
     let dir = dir.as_ref();
 
-    let mut blogs = Vec::new();
+    let mut posts = Vec::new();
     for entry in WalkDir::new(dir) {
         let Ok(entry) = entry else {
             continue;
@@ -67,63 +146,12 @@ fn parse_blogs(dir: impl AsRef<Path>) -> Vec<Blog> {
         if entry.path().extension().map(|e| e != "md").unwrap_or(false) {
             continue;
         }
-        let filename = entry
-            .path()
-            .with_extension("")
-            .file_name()
-            .unwrap()
-            .to_string_lossy()
-            .to_string();
-        let raw_doc = std::fs::read_to_string(entry.path()).unwrap();
+        let path = entry.path();
 
-        let parser = pulldown_cmark::Parser::new(&raw_doc);
-        let mut iterator = pulldown_cmark::TextMergeStream::new(parser);
-
-        let mut heading_start = None;
-        while let Some(e) = iterator.next() {
-            if matches!(
-                e,
-                Event::Start(Tag::Heading {
-                    level: HeadingLevel::H1,
-                    ..
-                })
-            ) {
-                heading_start = Some(e);
-                break;
-            }
-        }
-        let heading_html = heading_start.map(|_| {
-            let mut html = String::new();
-            pulldown_cmark::html::push_html(
-                &mut html,
-                iterator
-                    .take_while(|e| !matches!(e, Event::End(TagEnd::Heading(HeadingLevel::H1)))),
-            );
-            html
-        });
-        let title = heading_html.unwrap_or(filename.clone());
-        let slug = slug::slugify(filename);
-
-        let parser = pulldown_cmark::Parser::new(&raw_doc);
-        let mut content_html = String::new();
-        pulldown_cmark::html::push_html(&mut content_html, parser);
-
-        // 提取 HTML 摘要（前200字符，保持标签完整）
-        let filtered_html = remove_html_tag(&content_html, &["h1"]);
-        // std::fs::write("./test.txt", &content_html);
-        // std::fs::write("./test_filtered.txt", &filtered_html);
-        let summary_html = extract_html_summary(&filtered_html, 200);
-        // let summary_html = filtered_html;
-        // let summary_html = content_html.clone();
-        
-
-        let created = git_created_ts(entry.path());
-        let updated = git_updated_ts(entry.path());
-
-        blogs.push(Blog { title, slug, summary_html, content_html, created, updated });
+        posts.push(parse_post(path));
     }
 
-    blogs
+    posts
 }
 
 fn git_updated_ts(path: &Path) -> i64 {
@@ -169,7 +197,7 @@ fn html_to_rsx(html: &str) -> String {
 pub fn remove_html_tag(html: &str, tags: &[&str]) -> String {
     let mut out = String::with_capacity(html.len());
     let mut chars = html.char_indices().peekable();
-    let mut skip_depth = 0;   // 0: 正常输出，>0: 正在跳过某段 h1 内容
+    let mut skip_depth = 0; // 0: 正常输出，>0: 正在跳过某段 h1 内容
 
     while let Some((_, ch)) = chars.next() {
         if ch == '<' {
@@ -195,13 +223,17 @@ pub fn remove_html_tag(html: &str, tags: &[&str]) -> String {
             // 跳过到 '>'
             while let Some(&(_, c)) = chars.peek() {
                 chars.next();
-                if c == '>' { break; }
+                if c == '>' {
+                    break;
+                }
             }
 
             // 判断是否为 h1
-            if tags.iter().any(|t| tag_name.eq_ignore_ascii_case(t)){
+            if tags.iter().any(|t| tag_name.eq_ignore_ascii_case(t)) {
                 if is_close {
-                    if skip_depth > 0 { skip_depth -= 1; }
+                    if skip_depth > 0 {
+                        skip_depth -= 1;
+                    }
                 } else {
                     skip_depth += 1;
                 }
@@ -209,11 +241,15 @@ pub fn remove_html_tag(html: &str, tags: &[&str]) -> String {
             }
 
             // 如果在 h1 内部，整体丢弃
-            if skip_depth > 0 { continue; }
+            if skip_depth > 0 {
+                continue;
+            }
 
             // 还原标签到输出
             out.push('<');
-            if is_close { out.push('/'); }
+            if is_close {
+                out.push('/');
+            }
             out.push_str(&tag_name);
             out.push('>');
         } else {
@@ -303,4 +339,3 @@ pub fn extract_html_summary(html: &str, max_text_len: usize) -> String {
 
     out
 }
-

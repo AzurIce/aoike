@@ -57,7 +57,7 @@ impl GiscusOptions {
             reactions_enabled: false,
             emit_metadata: false,
             input_position: InputPosition::Bottom,
-            theme: "preferred_color_theme".to_string(),
+            theme: "preferred_color_scheme".to_string(),
             lang: "zh-CN".to_string(),
             lazy: false,
         }
@@ -89,7 +89,7 @@ impl GiscusOptions {
 }
 
 #[component]
-pub fn giscus(options: GiscusOptions) -> Element {
+pub fn Giscus(options: GiscusOptions) -> Element {
     let mapping = match &options.mapping {
         Mapping::Pathname => "pathname",
         Mapping::Url => "url",

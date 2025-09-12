@@ -208,23 +208,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "blogs"
-version = "0.1.0"
-dependencies = [
- "aoike",
- "dioxus",
- "dioxus-autofmt",
- "dioxus-rsx-rosetta",
- "prettyplease",
- "proc-macro2",
- "pulldown-cmark",
- "quote",
- "slug",
- "syn 2.0.106",
- "walkdir",
-]
-
-[[package]]
 name = "bumpalo"
 version = "3.19.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1453,9 +1436,9 @@ name = "example"
 version = "0.1.0"
 dependencies = [
  "aoike",
- "blogs",
  "dioxus",
  "pulldown-cmark",
+ "site",
  "tracing",
  "walkdir",
 ]
@@ -4202,6 +4185,23 @@ name = "siphasher"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "56199f7ddabf13fe5074ce809e7d3f42b42ae711800501b5b16ea82ad029c39d"
+
+[[package]]
+name = "site"
+version = "0.1.0"
+dependencies = [
+ "aoike",
+ "dioxus",
+ "dioxus-autofmt",
+ "dioxus-rsx-rosetta",
+ "prettyplease",
+ "proc-macro2",
+ "pulldown-cmark",
+ "quote",
+ "slug",
+ "syn 2.0.106",
+ "walkdir",
+]
 
 [[package]]
 name = "slab"
