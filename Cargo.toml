@@ -10,7 +10,7 @@ edition = "2021"
 to_token = ["quote", "proc-macro2"]
 
 [workspace]
-members = ["example-docs/site", "example"]
+members = ["example-docsgen/site", "example"]
 
 [workspace.dependencies]
 aoike = { path = "." }
@@ -18,7 +18,7 @@ aoike = { path = "." }
 [dependencies]
 itertools = "0.14.0"
 time = { version = "0.3.43", features = ["wasm-bindgen"] }
-dioxus = { version = "0.7.0-alpha.3", features = ["web", "router"] }
+dioxus = { version = "0.7.0-rc.0", features = ["web", "router"] }
 tracing = "0.1.41"
 quote = { version = "1.0.40", optional = true }
 proc-macro2 = { version = "1.0.101", optional = true }

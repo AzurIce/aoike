@@ -9,8 +9,8 @@ publish = false
 
 [dependencies]
 aoike = { path = "../" }
-site = { path = "../example-docs/site" }
-dioxus = { version = "0.7.0-alpha.3", features = [] }
+site = { path = "../example-docsgen/site" }
+dioxus = { version = "0.7.0-rc.0", features = [] }
 tracing = "0.1.41"
 
 [build-dependencies]

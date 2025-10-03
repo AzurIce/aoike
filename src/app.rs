@@ -6,7 +6,7 @@ use dioxus::{core::Element, prelude::*};
 
 use crate::{
     app::layout::Base,
-    components::giscus::{Giscus, GiscusOptions, InputPosition},
+    components::giscus::{Giscus, GiscusOptions},
     PostData, RsxFn, Site,
 };
 
