@@ -22,6 +22,8 @@ dioxus = { version = "0.7.0-rc.0", features = ["web", "router"] }
 tracing = "0.1.41"
 quote = { version = "1.0.40", optional = true }
 proc-macro2 = { version = "1.0.101", optional = true }
+gloo-timers = "0.3.0"
+wasm-bindgen-futures = "0.4.54"
 
 [build-dependencies]
 rsass = "0.29.2"

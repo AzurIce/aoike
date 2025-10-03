@@ -1,4 +1,5 @@
 use dioxus::prelude::*;
+use tracing::info;
 
 use crate::app::{ConfigContext, Route};
 
@@ -12,8 +13,8 @@ pub fn Head() -> Element {
 
     rsx! {
         // style { {TAILWIND_CSS} }
-        document::Link { rel: "stylesheet", href: MAIN_CSS }
-        document::Link { rel: "stylesheet", href: UNO_CSS }
+        document::Stylesheet { href: MAIN_CSS }
+        document::Stylesheet { href: UNO_CSS }
 
         if let Some(href) = header_context.favicon {
             document::Link { rel: "icon", href }
@@ -27,14 +28,37 @@ pub fn Head() -> Element {
 // MARK: Base
 #[component]
 pub fn Base() -> Element {
+    let mounted = use_signal(|| false);
+
+    // INFO: Temporary solution to avoid flash of unstyled content
+    {
+        let mut mounted = mounted.clone();
+        use_effect(move || {
+            info!("use effect");
+            wasm_bindgen_futures::spawn_local(async move {
+                gloo_timers::future::TimeoutFuture::new(200).await;
+                info!("set mounted to true");
+                mounted.set(true);
+            });
+        });
+    }
+
     rsx! {
         Head {}
 
+        if mounted() {
+            style { "body {{ opacity: 1; transition: opacity 0.6s ease; }}" }
+        } else {
+            style { "body {{ opacity: 0; }}" }
+        }
+
         Header { }
 
-        main {
-            class: "max-w-[80ch] w-full m-x-auto flex flex-col items-center p-8 gap-4",
-            Outlet::<Route> {}
+        if mounted() {
+            main {
+                class: "max-w-[80ch] w-full m-x-auto flex flex-col items-center p-8 gap-4",
+                Outlet::<Route> {}
+            }
         }
     }
 }
