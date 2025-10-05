@@ -10,16 +10,16 @@ const CSS_ARCHIVE: &[u8] = include_bytes!("../css.zip");
 /// 2. insert `<link>` tag into `index.html`
 pub fn init_aoike_sycamore() {
     if !Path::new("assets/css").exists() {
-        std::fs::create_dir_all("assets/css").expect("failed to create assets/css");
+        std::fs::create_dir_all("static/css").expect("failed to create statics/css");
 
         let cursor = Cursor::new(CSS_ARCHIVE);
         let mut zip = zip::ZipArchive::new(cursor).expect("failed to create zip archive");
-        zip.extract("assets/css").expect("failed to extract css assets into assets/css");
+        zip.extract("static/css").expect("failed to extract css assets into statics/css");
     }
 
     let index_html = std::fs::read_to_string("index.html").unwrap();
-    let insert_str = r#"<link rel="css" href="assets/css/uno.css" data-trunk>
-<link rel="scss" href="assets/css/main.scss" data-trunk>"#;
+    let insert_str = r#"<link rel="css" href="static/css/uno.css" data-trunk>
+<link rel="scss" href="static/css/main.scss" data-trunk>"#;
 
     std::fs::write(
         "index.html",
