@@ -200,7 +200,7 @@ pub fn generate_code(posts: Vec<Post>, index: Post) -> String {
         }
         pub fn posts() -> &'static [aoike::PostData] {
             static POSTS: std::sync::LazyLock<Vec<aoike::PostData>> = std::sync::LazyLock::new(|| {
-                let mut posts = vec![#(#posts),*];
+                let mut posts: Vec<aoike::PostData> = vec![#(#posts),*];
                 posts.sort_by(|a, b| b.created.cmp(&a.created));
                 posts
             });
