@@ -1,9 +1,9 @@
-use std::path::Path;
+use std::{io::Cursor, path::Path};
 
 use aoike::build::utils::inject_str;
-use include_dir::Dir;
 
-const CSS_ASSETS: Dir<'_> = include_dir::include_dir!("packages/aoike-sycamore/css");
+// const CSS_ASSETS: Dir<'_> = include_dir::include_dir!("packages/aoike-sycamore/css");
+const CSS_ARCHIVE: &[u8] = include_bytes!("../css.zip");
 
 /// This does two things:
 /// 1. export css assets to `assets/css`
@@ -11,9 +11,10 @@ const CSS_ASSETS: Dir<'_> = include_dir::include_dir!("packages/aoike-sycamore/c
 pub fn init_aoike_sycamore() {
     if !Path::new("assets/css").exists() {
         std::fs::create_dir_all("assets/css").expect("failed to create assets/css");
-        CSS_ASSETS
-            .extract("assets/css")
-            .expect("failed to extract css assets into assets/css");
+
+        let cursor = Cursor::new(CSS_ARCHIVE);
+        let mut zip = zip::ZipArchive::new(cursor).expect("failed to create zip archive");
+        zip.extract("assets/css").expect("failed to extract css assets into assets/css");
     }
 
     let index_html = std::fs::read_to_string("index.html").unwrap();
