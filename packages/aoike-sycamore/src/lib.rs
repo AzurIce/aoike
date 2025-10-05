@@ -1,3 +1,6 @@
+#[cfg(feature = "build")]
+pub mod build;
+
 pub mod docsgen;
 
 use aoike::PostData;

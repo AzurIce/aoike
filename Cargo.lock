@@ -58,6 +58,8 @@ dependencies = [
  "proc-macro2",
  "pulldown-cmark",
  "quote",
+ "regex",
+ "relative-path",
  "rsass",
  "slug",
  "syn 2.0.106",
@@ -89,11 +91,11 @@ name = "aoike-sycamore"
 version = "0.1.0"
 dependencies = [
  "aoike",
+ "include_dir",
  "sycamore",
  "sycamore-router",
  "time",
  "wasm-bindgen",
- "web-sys",
 ]
 
 [[package]]
@@ -1501,8 +1503,10 @@ dependencies = [
  "aoike",
  "aoike-sycamore",
  "console_error_panic_hook",
+ "relative-path",
  "sycamore",
  "sycamore-router",
+ "walkdir",
 ]
 
 [[package]]
@@ -2380,6 +2384,25 @@ checksum = "3acae9609540aa318d1bc588455225fb2085b9ed0c4f6bd0d9d5bcd86f1a0344"
 dependencies = [
  "icu_normalizer",
  "icu_properties",
+]
+
+[[package]]
+name = "include_dir"
+version = "0.7.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "923d117408f1e49d914f1a379a309cffe4f18c05cf4e3d12e613a15fc81bd0dd"
+dependencies = [
+ "include_dir_macros",
+]
+
+[[package]]
+name = "include_dir_macros"
+version = "0.7.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7cab85a7ed0bd5f0e76d93846e0147172bed2e2d3f859bcc33a8d9699cad1a75"
+dependencies = [
+ "proc-macro2",
+ "quote",
 ]
 
 [[package]]
@@ -3766,6 +3789,15 @@ name = "regex-syntax"
 version = "0.8.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "caf4aa5b0f434c91fe5c7f1ecb6a5ece2130b02ad2a590589dda5146df959001"
+
+[[package]]
+name = "relative-path"
+version = "2.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bca40a312222d8ba74837cb474edef44b37f561da5f773981007a10bbaa992b0"
+dependencies = [
+ "serde",
+]
 
 [[package]]
 name = "reqwest"

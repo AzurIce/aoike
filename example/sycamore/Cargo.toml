@@ -14,3 +14,6 @@ console_error_panic_hook = "0.1"
 
 [build-dependencies]
 aoike = { workspace = true, features = ["build"] }
+aoike-sycamore = { workspace = true, features = ["build"] }
+walkdir = "2.5.0"
+relative-path = "2.0.1"

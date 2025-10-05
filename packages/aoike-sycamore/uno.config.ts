@@ -7,7 +7,7 @@ export default defineConfig({
   cli: {
     entry: [{
       patterns: ["./src/**/*.{rs,html,css}"],
-      outFile: "assets/uno.css"
+      outFile: "css/uno.css"
     }],
   },
   presets: [

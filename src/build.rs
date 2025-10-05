@@ -1,12 +1,17 @@
+pub mod utils;
+
 use proc_macro2::TokenStream;
 use pulldown_cmark::{Event, HeadingLevel, Tag, TagEnd};
 use quote::ToTokens;
-use std::path::Path;
+use relative_path::{PathExt, RelativePath};
+use std::path::{Path, PathBuf};
 
 use walkdir::WalkDir;
 
 #[derive(Debug, Clone)]
 pub struct Post {
+    pub file_path: PathBuf,
+    pub ref_paths: Vec<String>,
     pub slug: String,
     pub title: String,
     pub summary_html: String,
@@ -58,12 +63,14 @@ pub fn parse_post(path: impl AsRef<Path>) -> Post {
     pulldown_cmark::html::push_html(&mut content_html, parser);
 
     // 提取 HTML 摘要(前200字符,保持标签完整)
-    let filtered_html = remove_html_tag(&content_html, &["h1"]);
-    let summary_html = extract_html_summary(&filtered_html, 200);
+    let filtered_html = utils::remove_html_tag(&content_html, &["h1"]);
+    let summary_html = utils::extract_html_summary(&filtered_html, 200);
 
     let created = git_created_ts(path);
     let updated = git_updated_ts(path);
     Post {
+        file_path: path.to_path_buf(),
+        ref_paths: utils::get_ref_paths(&content_html),
         title,
         slug,
         summary_html,
@@ -128,152 +135,6 @@ fn parse_git_ts(output: std::io::Result<std::process::Output>) -> i64 {
     }
 }
 
-pub fn remove_html_tag(html: &str, tags: &[&str]) -> String {
-    let mut out = String::with_capacity(html.len());
-    let mut chars = html.char_indices().peekable();
-    let mut skip_depth = 0; // 0: 正常输出,>0: 正在跳过某段 h1 内容
-
-    while let Some((_, ch)) = chars.next() {
-        if ch == '<' {
-            // 解析标签名
-            let mut tag_name = String::new();
-            let mut is_close = false;
-
-            if let Some(&(_, '/')) = chars.peek() {
-                is_close = true;
-                chars.next();
-            }
-
-            // 读标签名
-            while let Some(&(_, c)) = chars.peek() {
-                if c != '/' && c != '>' {
-                    tag_name.push(c);
-                    chars.next();
-                } else {
-                    break;
-                }
-            }
-
-            // 跳过到 '>'
-            while let Some(&(_, c)) = chars.peek() {
-                chars.next();
-                if c == '>' {
-                    break;
-                }
-            }
-
-            // 判断是否为 h1
-            if tags.iter().any(|t| tag_name.eq_ignore_ascii_case(t)) {
-                if is_close {
-                    if skip_depth > 0 {
-                        skip_depth -= 1;
-                    }
-                } else {
-                    skip_depth += 1;
-                }
-                continue; // 不输出 <h1> 或 </h1>
-            }
-
-            // 如果在 h1 内部,整体丢弃
-            if skip_depth > 0 {
-                continue;
-            }
-
-            // 还原标签到输出
-            out.push('<');
-            if is_close {
-                out.push('/');
-            }
-            out.push_str(&tag_name);
-            out.push('>');
-        } else {
-            if skip_depth == 0 {
-                out.push(ch);
-            }
-        }
-    }
-    out
-}
-
-/// 从 HTML 字符串中提取前 `max_text_len` 个字符的摘要,不破坏标签结构
-pub fn extract_html_summary(html: &str, max_text_len: usize) -> String {
-    let mut out = String::new();
-    let mut text_len = 0;
-    let mut tag_stack: Vec<&str> = Vec::new();
-    let mut chars = html.char_indices().peekable();
-
-    while let Some((i, ch)) = chars.next() {
-        if ch == '<' {
-            // 解析标签
-            let start = i;
-            let mut tag_name = String::new();
-            let mut is_close = false;
-            let mut self_closing = false;
-
-            // 跳过 '<'
-            if let Some(&(_, '/')) = chars.peek() {
-                is_close = true;
-                chars.next();
-            }
-
-            // 提取标签名
-            while let Some(&(_, c)) = chars.peek() {
-                if c.is_ascii_alphabetic() || c == '-' {
-                    tag_name.push(c);
-                    chars.next();
-                } else {
-                    break;
-                }
-            }
-
-            // 跳过属性部分
-            while let Some(&(_, c)) = chars.peek() {
-                if c == '>' {
-                    chars.next();
-                    break;
-                } else if c == '/' {
-                    chars.next();
-                    if let Some(&(_, '>')) = chars.peek() {
-                        self_closing = true;
-                        chars.next();
-                        break;
-                    }
-                } else {
-                    chars.next();
-                }
-            }
-
-            let tag_slice = &html[start..chars.peek().map(|(j, _)| *j).unwrap_or(html.len())];
-            out.push_str(tag_slice);
-
-            if !self_closing && !tag_name.is_empty() {
-                if is_close {
-                    tag_stack.pop();
-                } else {
-                    tag_stack.push(Box::leak(tag_name.into_boxed_str()));
-                }
-            }
-        } else {
-            // 文本内容
-            if text_len < max_text_len {
-                out.push(ch);
-                if !ch.is_whitespace() {
-                    text_len += 1;
-                }
-            } else {
-                // 补全未关闭的标签
-                out.extend(std::iter::repeat('.').take(3));
-                for tag in tag_stack.into_iter().rev() {
-                    out.push_str(&format!("</{}>", tag));
-                }
-                break;
-            }
-        }
-    }
-
-    out
-}
-
 impl ToTokens for Post {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let Self {
@@ -283,6 +144,7 @@ impl ToTokens for Post {
             content_html,
             created,
             updated,
+            ..
         } = self;
         tokens.extend(quote::quote! {
             aoike::PostData {
@@ -295,6 +157,37 @@ impl ToTokens for Post {
             }
         });
     }
+}
+
+pub fn get_assets_trunk_data(
+    posts: &Vec<Post>,
+    index: &Post,
+    root_dir: impl AsRef<Path>,
+) -> String {
+    posts
+        .iter()
+        .chain(std::iter::once(index))
+        .flat_map(|p| {
+            let file_path = Path::new(&p.file_path);
+            p.ref_paths
+                .iter()
+                .filter_map(|p| RelativePath::from_path(p).ok())
+                .map(|ref_path| {
+                    let ref_path = ref_path.to_path(file_path.parent().unwrap());
+
+                    let relative_path = ref_path.relative_to(&root_dir).unwrap();
+                    let target_path = relative_path.to_path("");
+
+                    let target_dir = target_path.parent().unwrap(); //.join(&p.slug);
+                    format!(
+                        r#"<link rel="copy-file" href="{}" data-target-path="{}" data-trunk>"#,
+                        ref_path.to_string_lossy(),
+                        target_dir.to_string_lossy()
+                    )
+                })
+        })
+        .collect::<Vec<_>>()
+        .join("\n")
 }
 
 pub fn generate_code(posts: Vec<Post>, index: Post) -> String {
@@ -319,5 +212,3 @@ pub fn generate_code(posts: Vec<Post>, index: Post) -> String {
         #token
     })
 }
-
-
