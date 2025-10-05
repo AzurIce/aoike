@@ -4,38 +4,36 @@ version = "0.1.0"
 authors = ["AzurIce <973562770@qq.com>"]
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[features]
-to_token = ["quote", "proc-macro2"]
-
 [workspace]
-members = ["example-docsgen/site", "example"]
+members = ["example/*", "packages/*"]
 
 [workspace.dependencies]
 aoike = { path = "." }
+aoike-dioxus = { path = "packages/aoike-dioxus" }
+aoike-sycamore = { path = "packages/aoike-sycamore" }
+
+[features]
+default = []
+build = [
+    "quote",
+    "proc-macro2",
+    "prettyplease",
+    "syn",
+    "walkdir",
+    "pulldown-cmark",
+    "slug",
+]
 
 [dependencies]
-itertools = "0.14.0"
 time = { version = "0.3.43", features = ["wasm-bindgen"] }
-dioxus = { version = "0.7.0-rc.0", features = ["web", "router"] }
-tracing = "0.1.41"
+
 quote = { version = "1.0.40", optional = true }
 proc-macro2 = { version = "1.0.101", optional = true }
-gloo-timers = "0.3.0"
-wasm-bindgen-futures = "0.4.54"
+prettyplease = { version = "0.2.23", optional = true }
+syn = { version = "2.0", features = ["full"], optional = true }
+walkdir = { version = "2.5.0", optional = true }
+pulldown-cmark = { version = "0.13.0", optional = true }
+slug = { version = "0.1.6", optional = true }
 
 [build-dependencies]
 rsass = "0.29.2"
-
-[profile]
-
-[profile.wasm-dev]
-inherits = "dev"
-opt-level = 1
-
-[profile.server-dev]
-inherits = "dev"
-
-[profile.android-dev]
-inherits = "dev"

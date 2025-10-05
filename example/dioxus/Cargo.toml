@@ -1,5 +1,5 @@
 [package]
-name = "example"
+name = "example-dioxus"
 version = "0.1.0"
 authors = ["AzurIce <973562770@qq.com>"]
 edition = "2021"
@@ -8,15 +8,13 @@ publish = false
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-aoike = { path = "../" }
-site = { path = "../example-docsgen/site" }
+aoike-dioxus.workspace = true
+example-dioxus-docsgen.path = "../dioxus-docsgen"
 dioxus = { version = "0.7.0-rc.0", features = [] }
 tracing = "0.1.41"
 
 [build-dependencies]
-aoike = { path = "../" }
-walkdir = "2.5.0"
-pulldown-cmark = "0.13.0"
+aoike-dioxus = { workspace = true, features = ["build"] }
 
 [features]
 default = ["web"]

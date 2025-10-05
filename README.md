@@ -1,65 +1,37 @@
 # Aoike
 
-An experimental static site generator based on `build.rs` and [Dioxus](https://dioxuslabs.com/).
+An experimental static site generator based on `build.rs`.
 
 ## Usage
 
-Aoike is highly customizable, with simple configuration.
+Aoike is highly customizable, with simple configuration. Check the examples in `example/` for more details.
 
-The simplest way to use it is create a package, adding `aoike` to your dependencies and use `aoike::AoikeApp` to launch an app based on Dioxus, just like `example/`:
+`aoike` crate provides the core data structures and the basic parsing and codegen logic.
 
-```rust
-use aoike::{
-    app::{AoikeApp, App, ConfigContext},
-    Site
-};
+`aoike-dioxus` and `aoike-sycamore` are the implementations of `AoikeApp` for Dioxus and Sycamore respectively.It is recommended to use `aoike-sycamore` instead of `aoike-dioxus`.
 
-fn main() {
-    // Site and ConfigContext are required for aoike to build the ui and pages
-    AoikeApp::default()
-        .with_context(Site {
-            // data...
-        })
-        .with_context(ConfigContext {
-            // config...
-        })
-        .launch();
-}
-```
+## Design Philosophy
 
-`AoikeApp` is a built-in implementation of `App`, it can convert `Site` data into a blog site. A common way to construct `Site` data is using `build.rs` to generate a rust file containing the data defination. This is shown in `examples-docs`. In the `build.rs`, we:
+The whole philosophy is "the site can be abstracted into pure data structures", so you can use any framework you want to build your site.
 
-- Read index content from `doc-src/index.md` file.
-- Read blog files from `doc-src/posts` directory.
-- Use git cli to get create and update time of each file.
-- Parse markdown to html with `pulldown-cmark`, then convert html to rsx.
-- Assemble the `Post` data, and generate a `docsgen.rs` file containing the data defination of `Site`'s fields.
+And the whole process can be divided into two phases:
 
-Aoike is designed with the philosophy of "the site can be abstracted into pure data structures", and the app is fully customizable through the `App` trait. So you have full control of:
-- What kind of context data your app require.
-- How your app is built from the context data.
-- How the context data is constructed.
+1. The build phase:
+    This normally happends in the `build.rs`, we:
 
-Usually, the common approach of constructing the context data is to use the `build.rs` file, so there are infinite possibilities:
+    - Read index content from `doc-src/index.md` file.
+    - Read blog files from `doc-src/posts` directory.
+    - Use git cli to get create and update time of each file.
+    - Parse markdown to html with `pulldown-cmark`.
+    - Assemble the `Post` data, and generate a `docsgen.rs` file containing the data defination.
+
+2. The runtime phase:
+    This depends on the framework you use, for example, in Dioxus, you can use `aoike-dioxus::AoikeApp` to launch an app, and in Sycamore, you can use `aoike-sycamore::AoikeApp` to launch an app.
+
+With this two phases, there are infinite possibilities:
 - You can use `pulldown-cmark` to parse markdown files to html, and convert html to rsx. (just like the example)
 - You can use `typst` to compile typst files to html, and convert html to rsx.
 - You can write a scraper to retrive data from internet and build rsx for a statistic app.
 - You can access your filesystem of assets (like videos and images), and generate a static site to show them.
 - You can encrypt your html source, and implement decrypt method for it with a password input in the app.
 - ...
-
-## Development
-
-We use unocss and sass to style the built-in app. The sass process is simply done in `build.rs`, but you'll need `bun` to install and run the unocss process.
-
-```bash
-# run in project root
-bun dev
-```
-
-And you'll need a demo app to check your implementation of `App`, for example, `example-docs` and `example` for `AoikeApp`:
-
-```bash
-# run in example/
-dx serve
-```

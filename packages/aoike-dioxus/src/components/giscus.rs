@@ -19,6 +19,7 @@ pub struct GiscusOptions {
     lazy: bool,
 }
 
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum InputPosition {
     Bottom,

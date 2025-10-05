@@ -18,6 +18,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "320119579fcad9c21884f5c4861d16174d0e06250625266f50fe6898340abefa"
 
 [[package]]
+name = "ahash"
+version = "0.8.12"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5a15f179cd60c4584b8a8c596927aadc462e27f2ca70c04e0071964a73ba7a75"
+dependencies = [
+ "cfg-if",
+ "once_cell",
+ "version_check",
+ "zerocopy",
+]
+
+[[package]]
 name = "aho-corasick"
 version = "1.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -27,24 +39,61 @@ dependencies = [
 ]
 
 [[package]]
-name = "anyhow"
-version = "1.0.99"
+name = "allocator-api2"
+version = "0.2.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b0674a1ddeecb70197781e945de4b3b8ffb61fa939a5597bcf48503737663100"
+checksum = "683d7910e743518b0e34f1186f92494becacb047c7b6bf616c96772180fef923"
+
+[[package]]
+name = "anyhow"
+version = "1.0.100"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a23eb6b1614318a8071c9b2521f36b424b2c83db5eb3a0fead4a6c0809af6e61"
 
 [[package]]
 name = "aoike"
 version = "0.1.0"
 dependencies = [
+ "prettyplease",
+ "proc-macro2",
+ "pulldown-cmark",
+ "quote",
+ "rsass",
+ "slug",
+ "syn 2.0.106",
+ "time",
+ "walkdir",
+]
+
+[[package]]
+name = "aoike-dioxus"
+version = "0.1.0"
+dependencies = [
+ "aoike",
  "dioxus",
+ "dioxus-autofmt",
+ "dioxus-rsx-rosetta",
  "gloo-timers",
- "itertools",
+ "prettyplease",
  "proc-macro2",
  "quote",
  "rsass",
+ "syn 2.0.106",
  "time",
  "tracing",
  "wasm-bindgen-futures",
+]
+
+[[package]]
+name = "aoike-sycamore"
+version = "0.1.0"
+dependencies = [
+ "aoike",
+ "sycamore",
+ "sycamore-router",
+ "time",
+ "wasm-bindgen",
+ "web-sys",
 ]
 
 [[package]]
@@ -1333,12 +1382,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "92773504d58c093f6de2459af4af33faa518c13451eb8f2b5698ed3d36e7c813"
 
 [[package]]
-name = "either"
-version = "1.15.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "48c757948c5ede0e46177b7add2e67155f70e33c07fea8284df6576da70b3719"
-
-[[package]]
 name = "endi"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1434,15 +1477,32 @@ dependencies = [
 ]
 
 [[package]]
-name = "example"
+name = "example-dioxus"
+version = "0.1.0"
+dependencies = [
+ "aoike-dioxus",
+ "dioxus",
+ "example-dioxus-docsgen",
+ "tracing",
+]
+
+[[package]]
+name = "example-dioxus-docsgen"
+version = "0.1.0"
+dependencies = [
+ "aoike-dioxus",
+ "dioxus",
+]
+
+[[package]]
+name = "example-sycamore"
 version = "0.1.0"
 dependencies = [
  "aoike",
- "dioxus",
- "pulldown-cmark",
- "site",
- "tracing",
- "walkdir",
+ "aoike-sycamore",
+ "console_error_panic_hook",
+ "sycamore",
+ "sycamore-router",
 ]
 
 [[package]]
@@ -2048,6 +2108,10 @@ name = "hashbrown"
 version = "0.14.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e5274423e17b7c9fc20b6e7e208532f9b19825d82dfd615708b70edd83df41f1"
+dependencies = [
+ "ahash",
+ "allocator-api2",
+]
 
 [[package]]
 name = "hashbrown"
@@ -2072,6 +2136,15 @@ name = "hex"
 version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
+
+[[package]]
+name = "html-escape"
+version = "0.2.13"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6d1ad449764d627e22bfd7cd5e8868264fc9236e07c752972b4080cd351cb476"
+dependencies = [
+ "utf8-width",
+]
 
 [[package]]
 name = "html5ever"
@@ -2353,15 +2426,6 @@ checksum = "dbc5ebe9c3a1a7a5127f920a418f7585e9e758e911d0466ed004f393b0e380b2"
 dependencies = [
  "memchr",
  "serde",
-]
-
-[[package]]
-name = "itertools"
-version = "0.14.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2b192c782037fadd9cfa75548310488aabdbf3d2da73885b31bd0abd03351285"
-dependencies = [
- "either",
 ]
 
 [[package]]
@@ -3139,6 +3203,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "paste"
+version = "1.0.15"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "57c0d7b74b563b49d38dae00a0c37d4d6de9b432382b2892f0574ddcae73fd0a"
+
+[[package]]
 name = "percent-encoding"
 version = "2.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3146,20 +3216,19 @@ checksum = "9b4f627cb1b25917193a259e49bdad08f671f8d9708acfd5fe0a8c1455d87220"
 
 [[package]]
 name = "pest"
-version = "2.8.1"
+version = "2.8.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1db05f56d34358a8b1066f67cbb203ee3e7ed2ba674a6263a1d5ec6db2204323"
+checksum = "989e7521a040efde50c3ab6bbadafbe15ab6dc042686926be59ac35d74607df4"
 dependencies = [
  "memchr",
- "thiserror 2.0.16",
  "ucd-trie",
 ]
 
 [[package]]
 name = "pest_derive"
-version = "2.8.1"
+version = "2.8.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bb056d9e8ea77922845ec74a1c4e8fb17e7c218cc4fc11a15c5d25e189aa40bc"
+checksum = "187da9a3030dbafabbbfb20cb323b976dc7b7ce91fcd84f2f74d6e31d378e2de"
 dependencies = [
  "pest",
  "pest_generator",
@@ -3167,9 +3236,9 @@ dependencies = [
 
 [[package]]
 name = "pest_generator"
-version = "2.8.1"
+version = "2.8.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "87e404e638f781eb3202dc82db6760c8ae8a1eeef7fb3fa8264b2ef280504966"
+checksum = "49b401d98f5757ebe97a26085998d6c0eecec4995cad6ab7fc30ffdf4b052843"
 dependencies = [
  "pest",
  "pest_meta",
@@ -3180,9 +3249,9 @@ dependencies = [
 
 [[package]]
 name = "pest_meta"
-version = "2.8.1"
+version = "2.8.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "edd1101f170f5903fde0914f899bb503d9ff5271d7ba76bbb70bea63690cc0d5"
+checksum = "72f27a2cfee9f9039c4d86faa5af122a0ac3851441a34865b8a043b46be0065a"
 dependencies = [
  "pest",
  "sha2",
@@ -3671,9 +3740,9 @@ dependencies = [
 
 [[package]]
 name = "regex"
-version = "1.11.2"
+version = "1.11.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "23d7fd106d8c02486a8d64e778353d1cffe08ce79ac2e82f540c86d0facf6912"
+checksum = "8b5288124840bee7b386bc413c487869b360b2b4ec421ea56425128692f2a82c"
 dependencies = [
  "aho-corasick",
  "memchr",
@@ -3683,9 +3752,9 @@ dependencies = [
 
 [[package]]
 name = "regex-automata"
-version = "0.4.10"
+version = "0.4.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6b9458fa0bfeeac22b5ca447c63aaf45f28439a709ccd244698632f9aa6394d6"
+checksum = "833eb9ce86d40ef33cb1306d8accf7bc8ec2bfea4355cbdebb3df68b40925cad"
 dependencies = [
  "aho-corasick",
  "memchr",
@@ -4189,23 +4258,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "56199f7ddabf13fe5074ce809e7d3f42b42ae711800501b5b16ea82ad029c39d"
 
 [[package]]
-name = "site"
-version = "0.1.0"
-dependencies = [
- "aoike",
- "dioxus",
- "dioxus-autofmt",
- "dioxus-rsx-rosetta",
- "prettyplease",
- "proc-macro2",
- "pulldown-cmark",
- "quote",
- "slug",
- "syn 2.0.106",
- "walkdir",
-]
-
-[[package]]
 name = "slab"
 version = "0.4.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4372,6 +4424,112 @@ name = "subtle"
 version = "2.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "13c2bddecc57b384dee18652358fb23172facb8a2c51ccc10d74c157bdea3292"
+
+[[package]]
+name = "sycamore"
+version = "0.9.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "92f6ab6fc21f9a534ede6713b0a18c1407ccf12ea1adc9e7af6c509f053e76e3"
+dependencies = [
+ "hashbrown 0.14.5",
+ "indexmap",
+ "paste",
+ "sycamore-core",
+ "sycamore-macro",
+ "sycamore-reactive",
+ "sycamore-web",
+ "wasm-bindgen",
+ "web-sys",
+]
+
+[[package]]
+name = "sycamore-core"
+version = "0.9.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "770c4701a63be2c929fc5654982cb2f495239b1779cf2ce31dff4ce7f82ec9d5"
+dependencies = [
+ "hashbrown 0.14.5",
+ "paste",
+ "sycamore-reactive",
+]
+
+[[package]]
+name = "sycamore-macro"
+version = "0.9.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "37b71839612a5ca843e501d774e6bd750f80a063ff622542500eb8455fc144cc"
+dependencies = [
+ "once_cell",
+ "proc-macro2",
+ "quote",
+ "rand 0.8.5",
+ "sycamore-view-parser",
+ "syn 2.0.106",
+]
+
+[[package]]
+name = "sycamore-reactive"
+version = "0.9.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cd7b0c93f5d4587db7a636fe08128ff97812f58cd219793252804c4ff1cca760"
+dependencies = [
+ "paste",
+ "slotmap",
+ "smallvec",
+ "wasm-bindgen",
+]
+
+[[package]]
+name = "sycamore-router"
+version = "0.9.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fa743f7e8bdfa307df6123d98b1720f7ad2e8875f8efaae3ad9a1e853eb889d1"
+dependencies = [
+ "sycamore",
+ "sycamore-router-macro",
+ "wasm-bindgen",
+ "web-sys",
+]
+
+[[package]]
+name = "sycamore-router-macro"
+version = "0.9.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "34b672517fd97a1afdd38ceea25c10ad461182ffa293301b6e9fcdb3625c11c6"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.106",
+]
+
+[[package]]
+name = "sycamore-view-parser"
+version = "0.9.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8a0ddef2ecbaa20b71dd6194dbafbfa0dc5925de2d99772381316519368e8653"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.106",
+]
+
+[[package]]
+name = "sycamore-web"
+version = "0.9.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cf0d42c89e84e7458adef638ece27d19d707dfa6c41bd5f8982f42b70da3dacd"
+dependencies = [
+ "html-escape",
+ "js-sys",
+ "once_cell",
+ "paste",
+ "smallvec",
+ "sycamore-core",
+ "sycamore-macro",
+ "sycamore-reactive",
+ "wasm-bindgen",
+ "web-sys",
+]
 
 [[package]]
 name = "syn"
@@ -4951,6 +5109,12 @@ name = "utf-8"
 version = "0.7.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "09cc8ee72d2a9becf2f2febe0205bbed8fc6615b7cb429ad062dc7b7ddd036a9"
+
+[[package]]
+name = "utf8-width"
+version = "0.1.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "86bd8d4e895da8537e5315b8254664e6b769c4ff3db18321b297a1e7004392e3"
 
 [[package]]
 name = "utf8_iter"

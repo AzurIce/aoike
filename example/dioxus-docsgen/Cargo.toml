@@ -1,0 +1,11 @@
+[package]
+name = "example-dioxus-docsgen"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+dioxus = "0.7.0-rc.0"
+aoike-dioxus.workspace = true
+
+[build-dependencies]
+aoike-dioxus = { workspace = true, features = ["build"] }

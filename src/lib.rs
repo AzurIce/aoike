@@ -1,65 +1,21 @@
-pub mod app;
-pub mod components {
-    pub mod giscus;
-}
+#[cfg(feature = "build")]
+pub mod build;
 
-use std::{fmt::Debug, sync::Arc};
-
-use dioxus::prelude::*;
 pub use time;
-
 use time::UtcDateTime;
 
-#[derive(Debug, Clone)]
-pub struct Site {
-    pub posts: &'static [PostData],
-    pub index: &'static PostData,
-}
-
-#[derive(Clone)]
-pub struct RsxFn(pub Arc<dyn Fn() -> Element + Send + Sync>);
-
-impl AsRef<dyn Fn() -> Element + Send + Sync + 'static> for RsxFn {
-    fn as_ref(&self) -> &(dyn Fn() -> Element + Send + Sync + 'static) {
-        self.0.as_ref()
-    }
-}
-
-impl RsxFn {
-    pub fn new(f: impl Fn() -> Element + Send + Sync + 'static) -> Self {
-        Self(Arc::new(f))
-    }
-}
-
-impl PartialEq for RsxFn {
-    fn eq(&self, other: &Self) -> bool {
-        Arc::ptr_eq(&self.0, &other.0)
-    }
-}
-
-impl Debug for RsxFn {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("ContentFn")
-            .field("ptr", &Arc::as_ptr(&self.0))
-            .finish()
-    }
-}
-
-#[derive(Props, Clone, PartialEq)]
+#[derive(Clone, PartialEq)]
 pub struct PostData {
     pub title: String,
     pub slug: String,
-    pub summary_rsx: RsxFn,
-    pub content_rsx: RsxFn,
+    pub summary_html: String,
+    pub content_html: String,
     pub created: UtcDateTime,
     pub updated: UtcDateTime,
 }
 
-impl Debug for PostData {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("BlogMeta")
-            .field("title", &self.title)
-            .field("content", &"Fn() -> Element")
-            .finish()
-    }
+#[derive(Clone)]
+pub struct Site {
+    pub posts: &'static [PostData],
+    pub index: &'static PostData,
 }

@@ -1,10 +1,9 @@
-use aoike::{
+use aoike_dioxus::{
     app::{AoikeApp, App, ConfigContext},
     components::giscus::{GiscusOptions, InputPosition},
     RsxFn, Site,
 };
 use dioxus::prelude::*;
-use tracing::info;
 
 const FAVICON: Asset = asset!("/assets/favicon.ico");
 const MAIN_CSS: Asset = asset!("/assets/main.css");
@@ -12,11 +11,11 @@ const AVATAR: Asset = asset!("/assets/avatar.jpg");
 
 fn main() {
     // dioxus_logger::init(Level::INFO).expect("failed to init logger");
-    info!("{:?}", site::index());
+    // info!("{:?}", docsgen::index());
     AoikeApp::default()
         .with_context(Site {
-            posts: site::posts(),
-            index: site::index(),
+            posts: example_dioxus_docsgen::posts(),
+            index: example_dioxus_docsgen::index(),
         })
         .with_context(ConfigContext {
             title: Some("冰弦のBlog".to_string()),

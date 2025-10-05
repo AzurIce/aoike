@@ -1,0 +1,47 @@
+[package]
+name = "aoike-dioxus"
+version = "0.1.0"
+authors = ["AzurIce <973562770@qq.com>"]
+edition = "2021"
+
+[features]
+build = [
+    "dioxus-rsx-rosetta",
+    "dioxus-autofmt",
+    "quote",
+    "proc-macro2",
+    "prettyplease",
+    "syn",
+    "aoike/build",
+]
+
+[dependencies]
+aoike.workspace = true
+dioxus = { version = "0.7.0-rc.0", features = ["web", "router"] }
+tracing = "0.1.41"
+gloo-timers = "0.3.0"
+wasm-bindgen-futures = "0.4.54"
+time = { version = "0.3.43", features = ["wasm-bindgen"] }
+
+# Build-time dependencies (optional)
+dioxus-rsx-rosetta = { version = "0.7.0-rc.0", optional = true }
+dioxus-autofmt = { version = "0.7.0-rc.0", optional = true }
+quote = { version = "1.0.40", optional = true }
+proc-macro2 = { version = "1.0.101", optional = true }
+prettyplease = { version = "0.2.23", optional = true }
+syn = { version = "2.0", features = ["full"], optional = true }
+
+[build-dependencies]
+rsass = "0.29.2"
+
+[profile]
+
+[profile.wasm-dev]
+inherits = "dev"
+opt-level = 1
+
+[profile.server-dev]
+inherits = "dev"
+
+[profile.android-dev]
+inherits = "dev"

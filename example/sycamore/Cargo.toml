@@ -1,0 +1,16 @@
+[package]
+name = "example-sycamore"
+version = "0.1.0"
+authors = ["AzurIce <973562770@qq.com>"]
+edition = "2021"
+publish = false
+
+[dependencies]
+aoike.workspace = true
+aoike-sycamore.workspace = true
+sycamore = { version = "0.9.2", features = ["web"] }
+sycamore-router = "0.9.2"
+console_error_panic_hook = "0.1"
+
+[build-dependencies]
+aoike = { workspace = true, features = ["build"] }
