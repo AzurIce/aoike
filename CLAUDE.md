@@ -4,85 +4,101 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Aoike is an experimental static site generator built on Rust, Dioxus (WASM-based UI framework), and `build.rs`. The core philosophy is "the site can be abstracted into pure data structures" - content is processed at build time into Rust data structures, then rendered as a static site.
+Aoike is an experimental static site generator built on Rust and `build.rs`. The core philosophy is "the site can be abstracted into pure data structures" - content is processed at build time into Rust data structures, then rendered as a static site using WASM-based UI frameworks.
 
 This is a workspace with multiple members:
-- **Root package (`aoike`)**: The library that provides the core framework
-- **`example-docs/site`**: Example demonstrating how to build a blog from markdown files
-- **`example`**: Another example implementation
+- **Root package (`aoike`)**: Core library providing data structures and build utilities
+- **`packages/aoike-dioxus`**: Dioxus framework integration and `AoikeApp` implementation
+- **`packages/aoike-sycamore`**: Sycamore framework integration and `AoikeApp` implementation (recommended)
+- **`example/dioxus`**: Basic Dioxus example
+- **`example/dioxus-docsgen`**: Example demonstrating markdown-to-blog pipeline with Dioxus
+- **`example/sycamore`**: Example using Sycamore framework
 
 ## Architecture
 
 ### Core Concepts
 
-1. **`App` trait**: Defines how an application is built and launched. Implementations provide their own routing and UI logic.
-
-2. **`AoikeApp`**: Built-in `App` implementation that creates a blog-style site with:
-   - Home page with hero section and latest posts
-   - Posts listing page
-   - Individual post pages
-   - 404 page
-
-3. **Data structures**:
+1. **Framework-agnostic core** (`aoike`):
    - `Site`: Contains static references to all posts and index content
-   - `PostData`: Individual post with title, slug, RSX content (both summary and full), created/updated timestamps
-   - `RsxFn`: Wrapper around `Arc<dyn Fn() -> Element>` for storing pre-compiled Dioxus RSX
-   - `ConfigContext`: Site configuration (title, description, social links, Giscus comments, etc.)
+   - `PostData`: Individual post with title, slug, HTML content (both summary and full), created/updated timestamps
+   - `build` feature: Provides build-time utilities for parsing and code generation
 
-4. **Build-time generation**: The `build.rs` in `example-docs/site` demonstrates the typical workflow:
+2. **Framework integrations**:
+   - **`aoike-dioxus`**: Dioxus-specific implementation
+     - `RsxFn`: Wrapper around `Arc<dyn Fn() -> Element>` for storing pre-compiled Dioxus RSX
+     - `PostData`: Extended with `summary_rsx` and `content_rsx` fields
+     - `AoikeApp`: Built-in app with routing, blog layout, Giscus comments integration
+     - `build` feature: Includes `dioxus-rsx-rosetta` for HTML → RSX conversion
+
+   - **`aoike-sycamore`**: Sycamore-specific implementation (recommended)
+     - Similar structure to Dioxus version, optimized for Sycamore framework
+     - Uses View instead of Element for rendering
+
+3. **Build-time generation workflow** (see `example/dioxus-docsgen/build.rs`):
    - Read markdown files from `doc-src/`
    - Parse markdown to HTML using `pulldown-cmark`
-   - Convert HTML to Dioxus RSX using `dioxus-rsx-rosetta`
+   - For Dioxus: Convert HTML to RSX using `dioxus-rsx-rosetta`
    - Extract git timestamps (created/updated) for each file
-   - Generate `docsgen.rs` with static data structures
+   - Generate code file with static data structures
    - Summary extraction: removes H1 tags and limits to first 200 characters
 
 ### Styling
 
-- **SCSS**: Compiled at build time in the root `build.rs` using `rsass` (compiles `assets/main.scss` → `assets/main.css`)
-- **UnoCSS**: CSS utility framework, run via `bun dev` (watches) or `bun build`
-- Transitioning from Tailwind to UnoCSS (note: `tailwind.config.js` is deleted in current git status)
+- **SCSS**: Compiled at build time using `rsass`
+  - Root package: `build.rs` may compile shared styles
+  - Framework packages: Each has its own `build.rs` for framework-specific styles
+- **CSS output**: Now exported to `static/css/` directory (previously `assets/css/`)
+- **Asset injection**: Framework packages support automatic CSS injection and asset copying
 
 ## Development Commands
 
-### Root package development
+### Example development
 ```bash
-# Watch and compile UnoCSS (required for styling changes)
-bun dev
-
-# Build UnoCSS once
-bun build
-```
-
-### Example site development
-```bash
-cd example/
+# Dioxus examples
+cd example/dioxus/
 dx serve  # Dioxus dev server with hot reload
-```
 
-For `example-docs/site`:
-```bash
-cd example-docs/site/
+cd example/dioxus-docsgen/
 dx serve
+
+# Sycamore example
+cd example/sycamore/
+trunk serve  # or equivalent Sycamore dev server
 ```
 
 ### Building for production
-Dioxus handles the build process. The `build.rs` files automatically:
-- Compile SCSS to CSS (root package)
-- Parse markdown and generate Rust code (example-docs)
+Each framework handles builds differently:
+- **Dioxus**: `dx build` (uses Dioxus CLI)
+- **Sycamore**: `trunk build` (uses Trunk)
+
+The `build.rs` files automatically run during the build process to:
+- Compile SCSS to CSS
+- Parse markdown and generate Rust code
 
 ## Key Files
 
-- `src/lib.rs`: Core data structures (`Site`, `PostData`, `RsxFn`)
-- `src/app.rs`: `App` trait and `AoikeApp` implementation with routing and components
-- `src/app/layout.rs`: Base layout component
+### Core library (`aoike`)
+- `src/lib.rs`: Core data structures (`Site`, `PostData`)
+- `src/build.rs`: Build-time utilities for parsing and codegen
+
+### Dioxus integration (`packages/aoike-dioxus`)
+- `src/lib.rs`: Dioxus-specific data structures (`RsxFn`, extended `PostData`)
+- `src/app.rs`: `AoikeApp` implementation with routing and components
 - `src/components/giscus.rs`: Giscus comments integration
-- `build.rs` (root): SCSS compilation
-- `example-docs/site/build.rs`: Markdown → Rust code generation pipeline
+- `src/build.rs`: Dioxus-specific build utilities (HTML → RSX conversion)
+- `build.rs`: SCSS compilation for Dioxus
+
+### Sycamore integration (`packages/aoike-sycamore`)
+- Similar structure to Dioxus package
+- `build.rs`: Handles CSS bundling using zip archive approach
 
 ## Notes
 
-- Context data (`Site`, `ConfigContext`) is consumed via Dioxus context API in components
-- Static generation means all post data is embedded in the WASM binary
-- Git is used at build time to extract file timestamps - ensure files are committed for accurate dates
-- The `to_token` feature enables `quote` and `proc-macro2` for code generation in build scripts
+- **Framework choice**: `aoike-sycamore` is recommended over `aoike-dioxus`
+- **Static generation**: All post data is embedded in the WASM binary
+- **Git timestamps**: Git is used at build time to extract file timestamps - ensure files are committed for accurate dates
+- **Feature flags**:
+  - `build` feature enables build-time dependencies (`quote`, `proc-macro2`, etc.)
+  - Optional features control framework-specific build tools
+- **CSS bundling**: Recent change moves CSS from `assets/css` to `static/css`
+- **Index injection**: Framework packages support injecting content into `index.html`

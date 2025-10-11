@@ -211,7 +211,7 @@ pub fn PostCard(post: &'static PostData) -> View {
     let summary_html = post.summary_html.as_str();
     view! {
         div(
-            class="flex flex-col gap-2 p-2 rounded border border-slate-200 hover:border-slate-400"
+            class="w-full flex flex-col gap-2 p-2 rounded border border-slate-200 hover:border-slate-400"
         ) {
             a(href=format!("/posts/{}", post.slug)) {
                 h2 { (post.title.clone()) }
@@ -248,7 +248,7 @@ pub fn Post(posts: &'static [PostData], slug: String) -> View {
 
     let content_html = post.content_html.as_str();
     view! {
-        div(class="markdown") {
+        div(class="markdown w-full") {
             div(dangerously_set_inner_html=content_html)
         }
 

@@ -1,151 +1,92 @@
+pub mod post;
 pub mod utils;
 
 use proc_macro2::TokenStream;
-use pulldown_cmark::{Event, HeadingLevel, Tag, TagEnd};
 use quote::ToTokens;
 use relative_path::{PathExt, RelativePath};
 use std::path::{Path, PathBuf};
+use time::UtcDateTime;
 
 use walkdir::WalkDir;
 
+use crate::build::post::Post;
+
 #[derive(Debug, Clone)]
-pub struct Post {
-    pub file_path: PathBuf,
-    pub ref_paths: Vec<String>,
-    pub slug: String,
-    pub title: String,
-    pub summary_html: String,
-    pub content_html: String,
-    pub created: i64,
-    pub updated: i64,
+pub struct Entity {
+    pub path: PathBuf,
+    pub created: UtcDateTime,
+    pub updated: UtcDateTime,
+    pub content: Vec<u8>,
 }
 
-pub fn parse_post(path: impl AsRef<Path>) -> Post {
-    let path = path.as_ref();
-
-    let filename = path
-        .with_extension("")
-        .file_name()
-        .unwrap()
-        .to_string_lossy()
-        .to_string();
-    let raw_doc = std::fs::read_to_string(path).unwrap();
-
-    let parser = pulldown_cmark::Parser::new(&raw_doc);
-    let mut iterator = pulldown_cmark::TextMergeStream::new(parser);
-
-    let mut heading_start = None;
-    while let Some(e) = iterator.next() {
-        if matches!(
-            e,
-            Event::Start(Tag::Heading {
-                level: HeadingLevel::H1,
-                ..
-            })
-        ) {
-            heading_start = Some(e);
-            break;
+impl Entity {
+    pub fn new(path: impl AsRef<Path>) -> Self {
+        let path = path.as_ref();
+        let content = std::fs::read(path).unwrap();
+        let created = utils::git_created_datetime(path);
+        let updated = utils::git_updated_datetime(path);
+        Self {
+            path: path.to_path_buf(),
+            created,
+            updated,
+            content,
         }
     }
-    let heading_html = heading_start.map(|_| {
-        let mut html = String::new();
-        pulldown_cmark::html::push_html(
-            &mut html,
-            iterator.take_while(|e| !matches!(e, Event::End(TagEnd::Heading(HeadingLevel::H1)))),
-        );
-        html
-    });
-    let title = heading_html.unwrap_or(filename.clone());
-    let slug = slug::slugify(filename);
-
-    let parser = pulldown_cmark::Parser::new(&raw_doc);
-    let mut content_html = String::new();
-    pulldown_cmark::html::push_html(&mut content_html, parser);
-
-    // 提取 HTML 摘要(前200字符,保持标签完整)
-    let filtered_html = utils::remove_html_tag(&content_html, &["h1"]);
-    let summary_html = utils::extract_html_summary(&filtered_html, 200);
-
-    let created = git_created_ts(path);
-    let updated = git_updated_ts(path);
-    Post {
-        file_path: path.to_path_buf(),
-        ref_paths: utils::get_ref_paths(&content_html),
-        title,
-        slug,
-        summary_html,
-        content_html,
-        created,
-        updated,
+    pub fn extension(&self) -> String {
+        self.path
+            .extension()
+            .and_then(|s| s.to_str())
+            .unwrap_or("")
+            .to_string()
     }
+    pub fn base_name(&self) -> String {
+        self.path
+            .with_extension("")
+            .file_name()
+            .and_then(|s| s.to_str())
+            .unwrap()
+            .to_string()
+    }
+    pub fn slug(&self) -> String {
+        slug::slugify(self.path.file_name().and_then(|s| s.to_str()).unwrap())
+    }
+}
+
+pub trait Parser {
+    type Output;
+    fn try_parse(entity: Entity) -> Result<Self::Output, anyhow::Error>;
 }
 
 pub fn parse_posts(dir: impl AsRef<Path>) -> Vec<Post> {
     let dir = dir.as_ref();
 
     let mut posts = Vec::new();
-    for entry in WalkDir::new(dir) {
-        let Ok(entry) = entry else {
-            continue;
-        };
-        if entry.file_type().is_dir() {
-            continue;
+    for entry in WalkDir::new(dir)
+        .into_iter()
+        .flatten()
+        .filter(|e| e.file_type().is_file())
+    {
+        let entity = Entity::new(entry.path());
+        println!("cargo:warning=entity: {}", entity.base_name());
+        if let Ok(post) = Post::try_from(entity) {
+            posts.push(post);
         }
-        if entry.path().extension().map(|e| e != "md").unwrap_or(false) {
-            continue;
-        }
-        let path = entry.path();
-
-        posts.push(parse_post(path));
     }
 
     posts
 }
 
-pub fn git_updated_ts(path: &Path) -> i64 {
-    use std::process::Command;
-    let output = Command::new("git")
-        .arg("log")
-        .arg("-1")
-        .arg("--format=%ct")
-        .arg(path)
-        .output();
-    parse_git_ts(output)
-}
-
-pub fn git_created_ts(path: &Path) -> i64 {
-    use std::process::Command;
-    let output = Command::new("git")
-        .arg("log")
-        .arg("--diff-filter=A")
-        .arg("-1")
-        .arg("--format=%ct")
-        .arg(path)
-        .output();
-    parse_git_ts(output)
-}
-
-fn parse_git_ts(output: std::io::Result<std::process::Output>) -> i64 {
-    match output {
-        Ok(out) if out.status.success() => {
-            let s = String::from_utf8_lossy(&out.stdout).trim().to_string();
-            s.parse::<i64>().unwrap_or(0)
-        }
-        _ => 0,
-    }
-}
-
 impl ToTokens for Post {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let Self {
-            slug,
             title,
             summary_html,
             content_html,
-            created,
-            updated,
             ..
         } = self;
+        let slug = self.entity.slug();
+        let created = self.entity.created.unix_timestamp();
+        let updated = self.entity.updated.unix_timestamp();
         tokens.extend(quote::quote! {
             aoike::PostData {
                 title: #title.to_string(),
@@ -168,7 +109,7 @@ pub fn get_assets_trunk_data(
         .iter()
         .chain(std::iter::once(index))
         .flat_map(|p| {
-            let file_path = Path::new(&p.file_path);
+            let file_path = Path::new(&p.path);
             p.ref_paths
                 .iter()
                 .filter_map(|p| RelativePath::from_path(p).ok())

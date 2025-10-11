@@ -1,3 +1,4 @@
+use aoike::build::post::Post;
 use proc_macro2::TokenStream;
 use quote::ToTokens;
 use std::str::FromStr;
@@ -18,15 +19,15 @@ pub struct DioxusPost {
     pub updated: i64,
 }
 
-impl From<aoike::build::Post> for DioxusPost {
-    fn from(post: aoike::build::Post) -> Self {
+impl From<Post> for DioxusPost {
+    fn from(post:Post) -> Self {
         Self {
-            slug: post.slug,
+            slug: post.slug(),
+            created: post.created.unix_timestamp(),
+            updated: post.updated.unix_timestamp(),
             title: post.title,
             summary_html: post.summary_html,
             content_html: post.content_html,
-            created: post.created,
-            updated: post.updated,
         }
     }
 }

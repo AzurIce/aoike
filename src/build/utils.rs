@@ -1,4 +1,7 @@
+use std::path::Path;
+
 use regex::Regex;
+use time::UtcDateTime;
 
 pub fn inject_str(source: &str, inject: &str, tag: &str, pos: Option<&str>) -> String {
     // 如果 <!-- tag_start --> <!-- tag_end --> 存在就替换，不存在就插入到查找 pos 的位置或最后
@@ -7,11 +10,15 @@ pub fn inject_str(source: &str, inject: &str, tag: &str, pos: Option<&str>) -> S
 
     let mut new_str = String::new();
 
-    let start_idx = source.find(&start_tag).or(pos.and_then(|p| source.find(p))).unwrap_or(source.len());
+    let start_idx = source
+        .find(&start_tag)
+        .or(pos.and_then(|p| source.find(p)))
+        .unwrap_or(source.len());
     let end_idx = source
         .find(&end_tag)
         .map(|idx| idx + end_tag.len())
-        .or(pos.and_then(|p| source.find(p))).unwrap_or(source.len());
+        .or(pos.and_then(|p| source.find(p)))
+        .unwrap_or(source.len());
 
     let before = source.get(..start_idx).unwrap_or("");
     let after = source.get(end_idx..).unwrap_or("");
@@ -22,77 +29,59 @@ pub fn inject_str(source: &str, inject: &str, tag: &str, pos: Option<&str>) -> S
 }
 
 pub fn get_ref_paths(html: &str) -> Vec<String> {
-    let re = Regex::new(r#"src="([^"]+)"#).unwrap();
+    // 排除 data:image 开头的内联数据
+    // Rust's regex does not support lookahead/lookbehind, so match all src="..." and filter in code.
+    let re = Regex::new(r#"src="([^"]+)""#).unwrap();
     re.captures_iter(html)
         .map(|cap| cap.get(1).unwrap().as_str().to_string())
+        .filter(|s| !s.starts_with("data:"))
         .collect()
 }
 
+pub fn get_tag_content(html: &str, tag: &str) -> Option<String> {
+    let re = Regex::new(&format!("<{tag}>(?s:(.*?))</{tag}>")).unwrap();
+    let cap = re.captures_iter(html).next();
+    cap.map(|cap| cap.get(1).unwrap().as_str().trim().to_string())
+}
+
+pub fn get_html_h1(html: &str) -> Option<String> {
+    get_tag_content(html, "h1")
+}
+
 pub fn remove_html_tag(html: &str, tags: &[&str]) -> String {
-    let mut out = String::with_capacity(html.len());
-    let mut chars = html.char_indices().peekable();
-    let mut skip_depth = 0; // 0: 正常输出,>0: 正在跳过某段 h1 内容
-
-    while let Some((_, ch)) = chars.next() {
-        if ch == '<' {
-            // 解析标签名
-            let mut tag_name = String::new();
-            let mut is_close = false;
-
-            if let Some(&(_, '/')) = chars.peek() {
-                is_close = true;
-                chars.next();
-            }
-
-            // 读标签名
-            while let Some(&(_, c)) = chars.peek() {
-                if c != '/' && c != '>' {
-                    tag_name.push(c);
-                    chars.next();
-                } else {
-                    break;
-                }
-            }
-
-            // 跳过到 '>'
-            while let Some(&(_, c)) = chars.peek() {
-                chars.next();
-                if c == '>' {
-                    break;
-                }
-            }
-
-            // 判断是否为 h1
-            if tags.iter().any(|t| tag_name.eq_ignore_ascii_case(t)) {
-                if is_close {
-                    if skip_depth > 0 {
-                        skip_depth -= 1;
-                    }
-                } else {
-                    skip_depth += 1;
-                }
-                continue; // 不输出 <h1> 或 </h1>
-            }
-
-            // 如果在 h1 内部,整体丢弃
-            if skip_depth > 0 {
-                continue;
-            }
-
-            // 还原标签到输出
-            out.push('<');
-            if is_close {
-                out.push('/');
-            }
-            out.push_str(&tag_name);
-            out.push('>');
-        } else {
-            if skip_depth == 0 {
-                out.push(ch);
-            }
-        }
+    // tags: ["h1", "h2"] etc.
+    if tags.is_empty() {
+        return html.to_string();
     }
-    out
+
+    // 构建标准正则表达式（不使用反向引用，因为 Rust 的标准 regex 不支持反向引用）
+    // 针对每一个 tag 单独生成正则，并分别替换
+    let mut result = html.to_string();
+
+    for &tag in tags {
+        let tag_escaped = regex::escape(tag);
+
+        // 匹配形如 <tag ...>...</tag> （非嵌套）、以及自闭合 <tag ... />
+        // 非贪婪匹配内容，适合移除简单的 h1/h2 结构
+        let open_close_pat = format!(r"(?is)<{tag}\b[^>]*>.*?</{tag}\s*>", tag = tag_escaped);
+        let self_close_pat = format!(r"(?is)<{tag}\b[^>]*/\s*>", tag = tag_escaped);
+
+        let open_close_re = regex::RegexBuilder::new(&open_close_pat)
+            .case_insensitive(true)
+            .dot_matches_new_line(true)
+            .build()
+            .unwrap();
+        let self_close_re = regex::RegexBuilder::new(&self_close_pat)
+            .case_insensitive(true)
+            .dot_matches_new_line(true)
+            .build()
+            .unwrap();
+
+        result = open_close_re.replace_all(&result, "").to_string();
+        result = self_close_re.replace_all(&result, "").to_string();
+    }
+
+    result.trim().to_string()
 }
 
 /// 从 HTML 字符串中提取前 `max_text_len` 个字符的摘要,不破坏标签结构
@@ -171,5 +160,46 @@ pub fn extract_html_summary(html: &str, max_text_len: usize) -> String {
         }
     }
 
-    out
+    out.trim().to_string()
+}
+
+fn parse_git_ts(output: std::io::Result<std::process::Output>) -> i64 {
+    match output {
+        Ok(out) if out.status.success() => {
+            let s = String::from_utf8_lossy(&out.stdout).trim().to_string();
+            s.parse::<i64>().unwrap_or(0)
+        }
+        _ => 0,
+    }
+}
+
+pub fn git_updated_ts(path: &Path) -> i64 {
+    use std::process::Command;
+    let output = Command::new("git")
+        .arg("log")
+        .arg("-1")
+        .arg("--format=%ct")
+        .arg(path)
+        .output();
+    parse_git_ts(output)
+}
+
+pub fn git_updated_datetime(path: &Path) -> UtcDateTime {
+    UtcDateTime::from_unix_timestamp(git_updated_ts(path)).unwrap()
+}
+
+pub fn git_created_ts(path: &Path) -> i64 {
+    use std::process::Command;
+    let output = Command::new("git")
+        .arg("log")
+        .arg("--diff-filter=A")
+        .arg("-1")
+        .arg("--format=%ct")
+        .arg(path)
+        .output();
+    parse_git_ts(output)
+}
+
+pub fn git_created_datetime(path: &Path) -> UtcDateTime {
+    UtcDateTime::from_unix_timestamp(git_created_ts(path)).unwrap()
 }
