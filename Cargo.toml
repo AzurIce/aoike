@@ -2,7 +2,7 @@
 name = "aoike"
 version = "0.1.0"
 authors = ["AzurIce <973562770@qq.com>"]
-edition = "2021"
+edition = "2024"
 
 [workspace]
 members = ["example/*", "packages/*"]

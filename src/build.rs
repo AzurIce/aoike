@@ -67,7 +67,7 @@ pub fn parse_posts(dir: impl AsRef<Path>) -> Vec<Post> {
         .filter(|e| e.file_type().is_file())
     {
         let entity = Entity::new(entry.path());
-        println!("cargo:warning=entity: {}", entity.base_name());
+        println!("cargo:warning=building {}", entity.base_name());
         if let Ok(post) = Post::try_from(entity) {
             posts.push(post);
         }

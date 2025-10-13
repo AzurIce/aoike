@@ -3,29 +3,61 @@ use std::path::Path;
 use regex::Regex;
 use time::UtcDateTime;
 
-pub fn inject_str(source: &str, inject: &str, tag: &str, pos: Option<&str>) -> String {
-    // 如果 <!-- tag_start --> <!-- tag_end --> 存在就替换，不存在就插入到查找 pos 的位置或最后
+pub fn patch_file(
+    path: impl AsRef<Path>,
+    inject: &str,
+    tag: &str,
+    pos: Option<&str>,
+) -> Result<(), anyhow::Error> {
+    let path = path.as_ref();
+
+    let source = std::fs::read_to_string(path)?;
+    let (res, old_inject) = inject_str(&source, inject, tag, pos);
+    if let Some(old_inject) = old_inject.as_deref()
+        && old_inject.trim() != inject.trim()
+    {
+        println!("cargo:warning=patching file {path:?}");
+        std::fs::write(path, res)?;
+    }
+    Ok(())
+}
+
+/// Inject string to source with tag and pos
+///
+/// Returns: (new_str, old_inject)
+pub fn inject_str(
+    source: &str,
+    inject: &str,
+    tag: &str,
+    pos: Option<&str>,
+) -> (String, Option<String>) {
+    // 使用正则表达式来查找和替换指定的注释块
     let start_tag = format!("<!-- {}_START -->", tag.to_ascii_uppercase());
     let end_tag = format!("<!-- {}_END -->", tag.to_ascii_uppercase());
 
-    let mut new_str = String::new();
+    let re = Regex::new(&format!(
+        "(?s){}(.*?){}",
+        regex::escape(&start_tag),
+        regex::escape(&end_tag)
+    ))
+    .unwrap();
 
-    let start_idx = source
-        .find(&start_tag)
-        .or(pos.and_then(|p| source.find(p)))
-        .unwrap_or(source.len());
-    let end_idx = source
-        .find(&end_tag)
-        .map(|idx| idx + end_tag.len())
-        .or(pos.and_then(|p| source.find(p)))
-        .unwrap_or(source.len());
-
-    let before = source.get(..start_idx).unwrap_or("");
-    let after = source.get(end_idx..).unwrap_or("");
-    new_str.push_str(before);
-    new_str.push_str(&[start_tag, inject.to_string(), end_tag].join("\n"));
-    new_str.push_str(after);
-    new_str
+    if let Some(caps) = re.captures(source) {
+        let old_inject = caps.get(1).map(|m| m.as_str().to_string());
+        let out = re
+            .replace(source, format!("{}\n{}\n{}", &start_tag, inject, &end_tag))
+            .to_string();
+        (out, old_inject)
+    } else {
+        // 没有注释块，插入到 pos 对应的位置
+        let insert_pos = pos.and_then(|p| source.find(p)).unwrap_or(source.len());
+        let (before, after) = source.split_at(insert_pos);
+        let mut out = String::new();
+        out.push_str(before);
+        out.push_str(&format!("{}\n{}\n{}", &start_tag, inject, &end_tag));
+        out.push_str(after);
+        (out, None)
+    }
 }
 
 pub fn get_ref_paths(html: &str) -> Vec<String> {

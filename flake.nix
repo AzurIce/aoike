@@ -6,9 +6,10 @@
     rust-overlay.url = "github:oxalica/rust-overlay";
     flake-utils.url = "github:numtide/flake-utils";
     dioxus-cli.url = "github:DioxusLabs/dioxus/v0.7.0-rc.0";
+    typst.url = "github:typst/typst";
   };
 
-  outputs = { nixpkgs, rust-overlay, flake-utils, dioxus-cli, ... }:
+  outputs = { nixpkgs, rust-overlay, flake-utils, dioxus-cli, typst, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         overlays = [ (import rust-overlay) ];
@@ -28,6 +29,7 @@
 
           buildInputs = with pkgs; [ clang ] ++ [ rust-tools ];
           packages = [
+            typst.packages.${system}.default
             dioxus-cli.packages.${system}.dioxus-cli
           ] ++ (with pkgs; [
             bun
