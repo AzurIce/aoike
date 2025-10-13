@@ -6,6 +6,11 @@ use crate::ConfigContext;
 pub fn Header() -> View {
     let config = use_context::<ConfigContext>();
 
+    let title = config.title.clone().unwrap_or("Site Title".to_string());
+    let desc = config
+        .desc
+        .clone()
+        .unwrap_or("site description".to_string());
     view! {
         header(class="flex sticky top-0 w-full bg-transparent z-800") {
             div(class="absolute size-full z-[-1] border-b border-b-slate-300 bg-white/90 backdrop-blur-md")
@@ -18,10 +23,10 @@ pub fn Header() -> View {
                     }))
                     div(class="flex flex-col") {
                         span(class="text-sm transition-transform duration-500 group-hover:-translate-y-1") {
-                            "Site Title"
+                            (title)
                         }
                         span(class="text-xs text-slate-600 opacity-0 max-h-0 overflow-hidden transition-all duration-500 group-hover:opacity-100 group-hover:max-h-8") {
-                            "site description"
+                            (desc)
                         }
                     }
                 }
