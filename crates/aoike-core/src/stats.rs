@@ -2,15 +2,29 @@ use std::collections::HashMap;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
 
-#[derive(Debug, Clone, Default)]
+use tokio::sync::broadcast;
+
+#[derive(Debug, Clone)]
 pub struct FileStats {
     pub counts: Arc<Mutex<HashMap<String, usize>>>,
     pub total: Arc<Mutex<usize>>,
+    pub tx: broadcast::Sender<StatsUpdate>,
+}
+
+#[derive(Debug, Clone, serde::Serialize)]
+pub struct StatsUpdate {
+    pub counts: HashMap<String, usize>,
+    pub total: usize,
 }
 
 impl FileStats {
     pub fn new() -> Self {
-        Self::default()
+        let (tx, _) = broadcast::channel(100);
+        Self {
+            counts: Arc::new(Mutex::new(HashMap::new())),
+            total: Arc::new(Mutex::new(0)),
+            tx,
+        }
     }
 
     pub fn scan_directory(&self, path: &Path, ignore_patterns: &[String]) -> anyhow::Result<()> {
@@ -21,6 +35,11 @@ impl FileStats {
         *total = 0;
         
         self.scan_recursive(path, ignore_patterns, &mut counts, &mut total)?;
+        
+        // Send initial update after scan
+        drop(counts);
+        drop(total);
+        self.broadcast_update();
         
         Ok(())
     }
@@ -79,6 +98,10 @@ impl FileStats {
         
         *counts.entry(ext).or_insert(0) += 1;
         *total += 1;
+        
+        drop(counts);
+        drop(total);
+        self.broadcast_update();
     }
 
     pub fn remove_file(&self, path: &Path) {
@@ -104,6 +127,16 @@ impl FileStats {
                 counts.remove(&ext);
             }
         }
+        
+        drop(counts);
+        drop(total);
+        self.broadcast_update();
+    }
+
+    fn broadcast_update(&self) {
+        let (counts, total) = self.get_stats();
+        let update = StatsUpdate { counts, total };
+        let _ = self.tx.send(update);
     }
 
     pub fn get_stats(&self) -> (HashMap<String, usize>, usize) {
@@ -126,6 +159,10 @@ impl FileStats {
             println!("  {:20} {}", format!(".{}", ext), count);
         }
         println!("======================\n");
+    }
+
+    pub fn subscribe(&self) -> broadcast::Receiver<StatsUpdate> {
+        self.tx.subscribe()
     }
 }
 

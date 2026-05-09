@@ -10,6 +10,8 @@ use axum::{
 };
 use rust_embed::RustEmbed;
 use serde::Serialize;
+use tokio_stream::wrappers::BroadcastStream;
+use tokio_stream::StreamExt;
 
 use aoike_core::FileStats;
 
@@ -26,6 +28,7 @@ struct StatsResponse {
 pub fn create_app(stats: FileStats) -> Router {
     Router::new()
         .route("/api/stats", get(get_stats))
+        .route("/api/events", get(sse_handler))
         .route("/", get(index_handler))
         .route("/{*path}", get(static_handler))
         .with_state(Arc::new(stats))
@@ -34,6 +37,30 @@ pub fn create_app(stats: FileStats) -> Router {
 async fn get_stats(State(stats): State<Arc<FileStats>>) -> impl IntoResponse {
     let (counts, total) = stats.get_stats();
     Json(StatsResponse { counts, total })
+}
+
+async fn sse_handler(State(stats): State<Arc<FileStats>>) -> impl IntoResponse {
+    let rx = stats.subscribe();
+    let stream = BroadcastStream::new(rx)
+        .filter_map(|result| {
+            match result {
+                Ok(update) => {
+                    let json = serde_json::to_string(&update).ok()?;
+                    Some(Ok::<_, std::convert::Infallible>(
+                        format!("data: {}\n\n", json)
+                    ))
+                }
+                Err(_) => None,
+            }
+        });
+
+    Response::builder()
+        .status(StatusCode::OK)
+        .header(header::CONTENT_TYPE, "text/event-stream")
+        .header(header::CACHE_CONTROL, "no-cache")
+        .header("X-Accel-Buffering", "no")
+        .body(Body::from_stream(stream))
+        .unwrap()
 }
 
 async fn index_handler() -> impl IntoResponse {

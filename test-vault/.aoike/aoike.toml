@@ -1,0 +1,11 @@
+[server]
+# Frontend HTTP API bind address
+bind = "127.0.0.1:8080"
+
+[control]
+# Control port for CLI to daemon communication
+bind = "127.0.0.1:8081"
+
+[watch]
+# Files/directories to ignore (glob patterns)
+ignore = [".git", ".aoike", "node_modules", "*.tmp"]

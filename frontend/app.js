@@ -12,46 +12,56 @@ async function fetchStats() {
 }
 
 function updateUI(data) {
-    // Update total
+    const entries = Object.entries(data.counts)
+        .sort((a, b) => b[1] - a[1]);
+    
+    // Update stat cards
     document.getElementById('total-files').textContent = data.total;
+    document.getElementById('total-types').textContent = entries.length;
+    document.getElementById('top-type').textContent = entries.length > 0 
+        ? `.${entries[0][0]}` 
+        : '-';
     
     // Update table
     const tbody = document.getElementById('stats-tbody');
     tbody.innerHTML = '';
     
-    const sortedEntries = Object.entries(data.counts)
-        .sort((a, b) => b[1] - a[1]);
-    
-    sortedEntries.forEach(([ext, count]) => {
-        const percentage = ((count / data.total) * 100).toFixed(1);
+    entries.forEach(([ext, count]) => {
+        const percentage = data.total > 0 
+            ? ((count / data.total) * 100).toFixed(1) + '%'
+            : '0%';
+        
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td><span class="extension-badge">.${ext}</span></td>
-            <td>${count}</td>
-            <td>${percentage}%</td>
+            <td><span class="badge">.${ext}</span></td>
+            <td class="count">${count}</td>
+            <td class="percentage">${percentage}</td>
         `;
         tbody.appendChild(row);
     });
     
     // Update chart
-    updateChart(sortedEntries, data.total);
+    updateChart(entries);
 }
 
-function updateChart(entries, total) {
+function updateChart(entries) {
     const ctx = document.getElementById('stats-chart').getContext('2d');
     
     const labels = entries.map(([ext]) => `.${ext}`);
     const data = entries.map(([_, count]) => count);
     
+    // Minimal color palette
     const colors = [
-        '#667eea', '#764ba2', '#f093fb', '#f5576c',
-        '#4facfe', '#00f2fe', '#43e97b', '#38f9d7',
-        '#fa709a', '#fee140', '#30cfd0', '#330867'
+        '#18181b', '#3f3f46', '#71717a', '#a1a1aa',
+        '#d4d4d8', '#e4e4e7', '#f4f4f5', '#fafafa'
     ];
     
     if (statsChart) {
         statsChart.destroy();
     }
+    
+    const container = document.querySelector('.chart-container');
+    const isDark = false;
     
     statsChart = new Chart(ctx, {
         type: 'doughnut',
@@ -61,27 +71,41 @@ function updateChart(entries, total) {
                 data: data,
                 backgroundColor: colors.slice(0, entries.length),
                 borderWidth: 2,
-                borderColor: '#fff'
+                borderColor: '#ffffff',
+                hoverOffset: 4
             }]
         },
         options: {
             responsive: true,
-            maintainAspectRatio: true,
+            maintainAspectRatio: false,
+            cutout: '65%',
             plugins: {
                 legend: {
-                    position: 'bottom',
-                    labels: {
-                        padding: 15,
-                        usePointStyle: true
-                    }
+                    display: false
                 },
-                title: {
-                    display: true,
-                    text: 'File Type Distribution',
-                    font: {
-                        size: 16
+                tooltip: {
+                    backgroundColor: '#18181b',
+                    padding: 12,
+                    cornerRadius: 8,
+                    titleFont: {
+                        size: 13,
+                        family: '-apple-system, BlinkMacSystemFont, sans-serif'
+                    },
+                    bodyFont: {
+                        size: 13,
+                        family: '-apple-system, BlinkMacSystemFont, sans-serif'
+                    },
+                    callbacks: {
+                        label: (context) => {
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((context.raw / total) * 100).toFixed(1);
+                            return ` ${context.raw} files (${percentage}%)`;
+                        }
                     }
                 }
+            },
+            animation: {
+                duration: 400
             }
         }
     });
@@ -90,5 +114,38 @@ function updateChart(entries, total) {
 // Initial load
 fetchStats();
 
-// Refresh every 5 seconds
-setInterval(fetchStats, 5000);
+// Setup SSE for real-time updates
+function setupSSE() {
+    const eventSource = new EventSource('/api/events');
+    
+    eventSource.onmessage = (event) => {
+        try {
+            const data = JSON.parse(event.data);
+            updateUI(data);
+        } catch (error) {
+            console.error('Error parsing SSE data:', error);
+        }
+    };
+    
+    eventSource.onerror = (error) => {
+        console.error('SSE error:', error);
+        document.getElementById('status-indicator').style.background = '#ef4444';
+        setTimeout(() => {
+            eventSource.close();
+            setupSSE();
+        }, 3000);
+    };
+    
+    eventSource.onopen = () => {
+        document.getElementById('status-indicator').style.background = '#22c55e';
+    };
+}
+
+setupSSE();
+
+// Handle window resize
+window.addEventListener('resize', () => {
+    if (statsChart) {
+        statsChart.resize();
+    }
+});
