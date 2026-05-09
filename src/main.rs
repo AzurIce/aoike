@@ -126,39 +126,6 @@ async fn run_serve(
     tracing::info!("Server is running. Press Ctrl+C to stop.");
     tracing::info!("Open http://{} in your browser to view dashboard", config.server.bind);
     
-    // Set up interval to print stats periodically
-    let stats_clone = stats.clone();
-    let task_index_clone = task_index.clone();
-    let monitor_clone = monitor.clone();
-    let stats_task = tokio::spawn(async move {
-        let mut interval = tokio::time::interval(std::time::Duration::from_secs(5));
-        loop {
-            interval.tick().await;
-            let (counts, total) = stats_clone.get_stats();
-            let mut items: Vec<_> = counts.iter().collect();
-            items.sort_by(|a, b| b.1.cmp(a.1));
-            let ext_summary = items.iter()
-                .map(|(ext, count)| format!("{}: {}", ext, count))
-                .collect::<Vec<_>>()
-                .join(", ");
-            
-            let (todo, done) = task_index_clone.get_stats();
-            let total_tasks = todo + done;
-            
-            if let Some(info) = monitor_clone.get_info(total_tasks, todo, done) {
-                tracing::info!(
-                    "Files: {} ({}) | Tasks: {} todo, {} done | Memory: {:.1} MB ({:.1}%) | CPU: {:.1}%",
-                    total, ext_summary, todo, done, info.memory_mb, info.memory_percent, info.cpu_percent
-                );
-            } else {
-                tracing::info!(
-                    "Files: {} ({}) | Tasks: {} todo, {} done",
-                    total, ext_summary, todo, done
-                );
-            }
-        }
-    });
-    
     // Run watcher
     let watcher_task = tokio::spawn(async move {
         watcher.run().await;
@@ -170,15 +137,8 @@ async fn run_serve(
             tracing::info!("Received shutdown signal");
         }
         _ = server_task => {}
-        _ = stats_task => {}
         _ = watcher_task => {}
     }
-    
-    // Final stats
-    tracing::info!("Final statistics:");
-    stats.print_stats();
-    let (todo, done) = task_index.get_stats();
-    tracing::info!("Final tasks: {} todo, {} done", todo, done);
     
     Ok(())
 }
