@@ -1,3 +1,4 @@
+mod monitor;
 mod server;
 
 use std::path::PathBuf;
@@ -84,6 +85,9 @@ async fn run_serve(
     // Create task index
     let task_index = aoike_core::TaskIndex::new();
     
+    // Create system monitor
+    let monitor = monitor::SystemMonitor::new();
+    
     // Initial scan
     tracing::info!("Performing initial directory scan...");
     stats.scan_directory(&path, &config.watch.ignore)?;
@@ -107,11 +111,13 @@ async fn run_serve(
     let server_bind = config.server.bind.clone();
     let stats_for_server = stats.clone();
     let task_index_for_server = task_index.clone();
+    let monitor_for_server = monitor.clone();
     let server_task = tokio::spawn(async move {
         if let Err(e) = server::run_server(
             &server_bind,
             stats_for_server,
             task_index_for_server,
+            monitor_for_server,
         ).await {
             tracing::error!("Server error: {}", e);
         }
@@ -123,13 +129,22 @@ async fn run_serve(
     // Set up interval to print stats periodically
     let stats_clone = stats.clone();
     let task_index_clone = task_index.clone();
+    let monitor_clone = monitor.clone();
     let stats_task = tokio::spawn(async move {
         let mut interval = tokio::time::interval(std::time::Duration::from_secs(5));
         loop {
             interval.tick().await;
             stats_clone.print_stats();
             let (todo, done) = task_index_clone.get_stats();
-            tracing::info!("Tasks: {} todo, {} done", todo, done);
+            let total = todo + done;
+            if let Some(info) = monitor_clone.get_info(total, todo, done) {
+                tracing::info!(
+                    "Tasks: {} todo, {} done | Memory: {:.1} MB ({:.1}%) | CPU: {:.1}%",
+                    todo, done, info.memory_mb, info.memory_percent, info.cpu_percent
+                );
+            } else {
+                tracing::info!("Tasks: {} todo, {} done", todo, done);
+            }
         }
     });
     

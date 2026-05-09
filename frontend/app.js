@@ -285,6 +285,48 @@ function setupFilters() {
     });
 }
 
+// System monitoring
+async function fetchSystemInfo() {
+    try {
+        const response = await fetch('/api/system');
+        if (!response.ok) throw new Error('Failed to fetch system info');
+        const data = await response.json();
+        updateSystemUI(data);
+    } catch (error) {
+        console.error('Error fetching system info:', error);
+    }
+}
+
+function updateSystemUI(data) {
+    document.getElementById('sys-pid').textContent = data.pid || '-';
+    document.getElementById('sys-memory').textContent = data.memory_mb ? data.memory_mb.toFixed(1) + ' MB' : '-';
+    document.getElementById('sys-cpu').textContent = data.cpu_percent ? data.cpu_percent.toFixed(1) + '%' : '-';
+    document.getElementById('sys-uptime').textContent = data.uptime_seconds ? formatUptime(data.uptime_seconds) : '-';
+    
+    document.getElementById('sys-memory-detail').textContent = data.memory_mb ? 
+        `${data.memory_mb.toFixed(1)} MB (${data.memory_percent.toFixed(1)}%)` : '-';
+    document.getElementById('sys-memory-bar').style.width = data.memory_percent ? `${Math.min(data.memory_percent, 100)}%` : '0%';
+    
+    document.getElementById('sys-total-memory').textContent = data.total_memory_mb ? 
+        `${data.used_memory_mb.toFixed(0)} / ${data.total_memory_mb.toFixed(0)} MB` : '-';
+    const systemMemPercent = data.total_memory_mb ? (data.used_memory_mb / data.total_memory_mb * 100) : 0;
+    document.getElementById('sys-total-memory-bar').style.width = `${Math.min(systemMemPercent, 100)}%`;
+    
+    document.getElementById('sys-total-tasks').textContent = data.total_tasks || '-';
+    document.getElementById('sys-todo-tasks').textContent = data.total_todo || '-';
+    document.getElementById('sys-done-tasks').textContent = data.total_done || '-';
+}
+
+function formatUptime(seconds) {
+    const days = Math.floor(seconds / 86400);
+    const hours = Math.floor((seconds % 86400) / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    
+    if (days > 0) return `${days}d ${hours}h ${minutes}m`;
+    if (hours > 0) return `${hours}h ${minutes}m`;
+    return `${minutes}m`;
+}
+
 // SSE setup
 function setupSSE() {
     // Stats SSE
@@ -339,7 +381,11 @@ document.addEventListener('DOMContentLoaded', () => {
     setupFilters();
     fetchStats();
     fetchTasks();
+    fetchSystemInfo();
     setupSSE();
+    
+    // Refresh system info every 5 seconds
+    setInterval(fetchSystemInfo, 5000);
 });
 
 // Handle window resize

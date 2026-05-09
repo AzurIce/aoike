@@ -13,6 +13,7 @@ use serde::Serialize;
 use tokio_stream::wrappers::BroadcastStream;
 use tokio_stream::StreamExt;
 
+use crate::monitor::SystemMonitor;
 use aoike_core::{FileStats, TaskIndex};
 
 #[derive(RustEmbed)]
@@ -29,12 +30,14 @@ struct StatsResponse {
 struct AppState {
     stats: FileStats,
     task_index: TaskIndex,
+    monitor: SystemMonitor,
 }
 
-pub fn create_app(stats: FileStats, task_index: TaskIndex) -> Router {
+pub fn create_app(stats: FileStats, task_index: TaskIndex, monitor: SystemMonitor) -> Router {
     let state = AppState {
         stats,
         task_index,
+        monitor,
     };
 
     Router::new()
@@ -42,6 +45,7 @@ pub fn create_app(stats: FileStats, task_index: TaskIndex) -> Router {
         .route("/api/events", get(stats_sse_handler))
         .route("/api/tasks", get(get_tasks))
         .route("/api/task-events", get(tasks_sse_handler))
+        .route("/api/system", get(get_system_info))
         .route("/", get(index_handler))
         .route("/{*path}", get(static_handler))
         .with_state(Arc::new(state))
@@ -92,6 +96,19 @@ async fn get_tasks(State(state): State<Arc<AppState>>) -> impl IntoResponse {
         "total_todo": total_todo,
         "total_done": total_done,
     }))
+}
+
+async fn get_system_info(State(state): State<Arc<AppState>>) -> impl IntoResponse {
+    let (total_todo, total_done) = state.task_index.get_stats();
+    let total_tasks = total_todo + total_done;
+    
+    match state.monitor.get_info(total_tasks, total_todo, total_done) {
+        Some(info) => Json(serde_json::json!(info)).into_response(),
+        None => Response::builder()
+            .status(StatusCode::SERVICE_UNAVAILABLE)
+            .body(Body::from("System info unavailable"))
+            .unwrap(),
+    }
 }
 
 async fn tasks_sse_handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
@@ -158,8 +175,9 @@ pub async fn run_server(
     bind_addr: &str,
     stats: FileStats,
     task_index: TaskIndex,
+    monitor: SystemMonitor,
 ) -> anyhow::Result<()> {
-    let app = create_app(stats, task_index);
+    let app = create_app(stats, task_index, monitor);
     
     let listener = tokio::net::TcpListener::bind(bind_addr).await?;
     tracing::info!("HTTP server listening on http://{}", bind_addr);
