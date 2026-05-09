@@ -1,28 +1,29 @@
 let statsChart = null;
+let currentTasks = [];
+let currentTaskFilter = 'all';
 
+// Stats functions
 async function fetchStats() {
     try {
         const response = await fetch('/api/stats');
         if (!response.ok) throw new Error('Failed to fetch stats');
         const data = await response.json();
-        updateUI(data);
+        updateStatsUI(data);
     } catch (error) {
         console.error('Error fetching stats:', error);
     }
 }
 
-function updateUI(data) {
+function updateStatsUI(data) {
     const entries = Object.entries(data.counts)
         .sort((a, b) => b[1] - a[1]);
     
-    // Update stat cards
     document.getElementById('total-files').textContent = data.total;
     document.getElementById('total-types').textContent = entries.length;
-    document.getElementById('top-type').textContent = entries.length > 0 
+    document.getElementById('top-type').textContent = entries.length 
         ? `.${entries[0][0]}` 
         : '-';
     
-    // Update table
     const tbody = document.getElementById('stats-tbody');
     tbody.innerHTML = '';
     
@@ -40,7 +41,6 @@ function updateUI(data) {
         tbody.appendChild(row);
     });
     
-    // Update chart
     updateChart(entries);
 }
 
@@ -50,7 +50,6 @@ function updateChart(entries) {
     const labels = entries.map(([ext]) => `.${ext}`);
     const data = entries.map(([_, count]) => count);
     
-    // Minimal color palette
     const colors = [
         '#18181b', '#3f3f46', '#71717a', '#a1a1aa',
         '#d4d4d8', '#e4e4e7', '#f4f4f5', '#fafafa'
@@ -59,9 +58,6 @@ function updateChart(entries) {
     if (statsChart) {
         statsChart.destroy();
     }
-    
-    const container = document.querySelector('.chart-container');
-    const isDark = false;
     
     statsChart = new Chart(ctx, {
         type: 'doughnut',
@@ -111,35 +107,158 @@ function updateChart(entries) {
     });
 }
 
-// Initial load
-fetchStats();
+// Task functions
+async function fetchTasks() {
+    try {
+        const response = await fetch('/api/tasks');
+        if (!response.ok) throw new Error('Failed to fetch tasks');
+        const data = await response.json();
+        currentTasks = data.tasks;
+        updateTasksUI(data);
+    } catch (error) {
+        console.error('Error fetching tasks:', error);
+    }
+}
 
-// Setup SSE for real-time updates
-function setupSSE() {
-    const eventSource = new EventSource('/api/events');
+function updateTasksUI(data) {
+    const total = data.total_todo + data.total_done;
+    const completionRate = total > 0 
+        ? ((data.total_done / total) * 100).toFixed(0) + '%'
+        : '0%';
     
-    eventSource.onmessage = (event) => {
+    document.getElementById('total-tasks').textContent = total;
+    document.getElementById('todo-count').textContent = data.total_todo;
+    document.getElementById('done-count').textContent = data.total_done;
+    document.getElementById('completion-rate').textContent = completionRate;
+    
+    renderTaskList();
+}
+
+function renderTaskList() {
+    const container = document.getElementById('task-list');
+    container.innerHTML = '';
+    
+    const filteredTasks = currentTasks.filter(task => {
+        if (currentTaskFilter === 'all') return true;
+        if (currentTaskFilter === 'todo') return task.status === 'todo';
+        if (currentTaskFilter === 'done') return task.status === 'done';
+        return true;
+    });
+    
+    if (filteredTasks.length === 0) {
+        container.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 2rem;">No tasks found</div>';
+        return;
+    }
+    
+    filteredTasks.forEach(task => {
+        const item = document.createElement('div');
+        item.className = `task-item ${task.status}`;
+        
+        const checkbox = task.status === 'done' ? '✓' : '';
+        const priorityClass = task.priority ? `task-priority-${task.priority}` : '';
+        
+        const tagsHtml = task.tags.map(tag => 
+            `<span class="task-tag">#${tag}</span>`
+        ).join('');
+        
+        const dueHtml = task.due_date 
+            ? `<span class="task-tag" style="color: var(--warning);">📅 ${task.due_date}</span>`
+            : '';
+        
+        const fileName = task.file_path.split(/[\\/]/).pop();
+        
+        item.innerHTML = `
+            <div class="task-checkbox">${checkbox}</div>
+            <div class="task-content">
+                <div class="task-text ${priorityClass}">${escapeHtml(task.content)}</div>
+                <div class="task-meta">
+                    ${tagsHtml}
+                    ${dueHtml}
+                    <span class="task-file">${fileName}:${task.line_number}</span>
+                </div>
+            </div>
+        `;
+        
+        container.appendChild(item);
+    });
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Tab switching
+document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        
+        tab.classList.add('active');
+        document.getElementById(`${tab.dataset.tab}-tab`).classList.add('active');
+    });
+});
+
+// Task filter buttons
+document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentTaskFilter = btn.dataset.filter;
+        renderTaskList();
+    });
+});
+
+// SSE setup
+function setupSSE() {
+    // Stats SSE
+    const statsEventSource = new EventSource('/api/events');
+    
+    statsEventSource.onmessage = (event) => {
         try {
             const data = JSON.parse(event.data);
-            updateUI(data);
+            updateStatsUI(data);
         } catch (error) {
-            console.error('Error parsing SSE data:', error);
+            console.error('Error parsing stats SSE data:', error);
         }
     };
     
-    eventSource.onerror = (error) => {
-        console.error('SSE error:', error);
+    statsEventSource.onerror = () => {
         document.getElementById('status-indicator').style.background = '#ef4444';
         setTimeout(() => {
-            eventSource.close();
+            statsEventSource.close();
             setupSSE();
         }, 3000);
     };
     
-    eventSource.onopen = () => {
+    statsEventSource.onopen = () => {
         document.getElementById('status-indicator').style.background = '#22c55e';
     };
+    
+    // Tasks SSE
+    const tasksEventSource = new EventSource('/api/task-events');
+    
+    tasksEventSource.onmessage = (event) => {
+        try {
+            const data = JSON.parse(event.data);
+            currentTasks = data.tasks;
+            updateTasksUI(data);
+        } catch (error) {
+            console.error('Error parsing tasks SSE data:', error);
+        }
+    };
+    
+    tasksEventSource.onerror = () => {
+        setTimeout(() => {
+            tasksEventSource.close();
+        }, 3000);
+    };
 }
+
+// Initial load
+fetchStats();
+fetchTasks();
 
 setupSSE();
 

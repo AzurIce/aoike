@@ -81,39 +81,55 @@ async fn run_serve(
     // Create stats tracker
     let stats = aoike_core::FileStats::new();
     
+    // Create task index
+    let task_index = aoike_core::TaskIndex::new();
+    
     // Initial scan
     tracing::info!("Performing initial directory scan...");
     stats.scan_directory(&path, &config.watch.ignore)?;
     stats.print_stats();
     
+    // Initial task scan - scan all markdown files
+    tracing::info!("Scanning for tasks in markdown files...");
+    scan_markdown_tasks(&path, &config.watch.ignore, &task_index).await?;
+    let (todo_count, done_count) = task_index.get_stats();
+    tracing::info!("Found {} todo tasks, {} done tasks", todo_count, done_count);
+    
     // Create file watcher
     let watcher = aoike_core::FileWatcher::new(
         path.clone(),
         stats.clone(),
+        task_index.clone(),
         config.watch.ignore.clone(),
     )?;
     
     // Start HTTP server
     let server_bind = config.server.bind.clone();
     let stats_for_server = stats.clone();
+    let task_index_for_server = task_index.clone();
     let server_task = tokio::spawn(async move {
-        if let Err(e) = server::run_server(&server_bind,
-            stats_for_server
+        if let Err(e) = server::run_server(
+            &server_bind,
+            stats_for_server,
+            task_index_for_server,
         ).await {
             tracing::error!("Server error: {}", e);
         }
     });
     
     tracing::info!("Server is running. Press Ctrl+C to stop.");
-    tracing::info!("Open http://{} in your browser to view statistics", config.server.bind);
+    tracing::info!("Open http://{} in your browser to view dashboard", config.server.bind);
     
     // Set up interval to print stats periodically
     let stats_clone = stats.clone();
+    let task_index_clone = task_index.clone();
     let stats_task = tokio::spawn(async move {
         let mut interval = tokio::time::interval(std::time::Duration::from_secs(5));
         loop {
             interval.tick().await;
             stats_clone.print_stats();
+            let (todo, done) = task_index_clone.get_stats();
+            tracing::info!("Tasks: {} todo, {} done", todo, done);
         }
     });
     
@@ -135,6 +151,87 @@ async fn run_serve(
     // Final stats
     tracing::info!("Final statistics:");
     stats.print_stats();
+    let (todo, done) = task_index.get_stats();
+    tracing::info!("Final tasks: {} todo, {} done", todo, done);
     
+    Ok(())
+}
+
+async fn scan_markdown_tasks(
+    path: &std::path::Path,
+    ignore_patterns: &[String],
+    task_index: &aoike_core::TaskIndex,
+) -> anyhow::Result<()> {
+    scan_markdown_tasks_recursive(path, ignore_patterns, task_index).await?;
+    Ok(())
+}
+
+fn should_ignore(name: &str, patterns: &[String]) -> bool {
+    for pattern in patterns {
+        if pattern == name {
+            return true;
+        }
+        if pattern.starts_with("*.") {
+            let suffix = &pattern[1..];
+            if name.ends_with(suffix) {
+                return true;
+            }
+        }
+        if pattern.contains('*') {
+            let parts: Vec<&str> = pattern.split('*').collect();
+            if parts.len() == 2 {
+                let prefix = parts[0];
+                let suffix = parts[1];
+                if name.starts_with(prefix) && name.ends_with(suffix) {
+                    return true;
+                }
+            }
+        }
+    }
+    false
+}
+
+async fn scan_markdown_tasks_recursive(
+    path: &std::path::Path,
+    ignore_patterns: &[String],
+    task_index: &aoike_core::TaskIndex,
+) -> anyhow::Result<()> {
+    if !path.is_dir() {
+        return Ok(());
+    }
+
+    for entry in std::fs::read_dir(path)? {
+        let entry = entry?;
+        let path = entry.path();
+        let name = entry.file_name().to_string_lossy().to_string();
+
+        // Check if ignored
+        if should_ignore(&name, ignore_patterns) {
+            continue;
+        }
+
+        if path.is_dir() {
+            Box::pin(scan_markdown_tasks_recursive(
+                &path,
+                ignore_patterns,
+                task_index,
+            )).await?;
+        } else if path.is_file() {
+            // Only scan markdown files
+            if let Some(ext) = path.extension() {
+                if ext.to_string_lossy().to_lowercase() == "md" {
+                    match tokio::fs::read_to_string(&path).await {
+                        Ok(content) => {
+                            task_index.scan_file(&path, &content);
+                        }
+                        Err(e) => {
+                            tracing::warn!("Failed to read file {:?}: {}", path, e);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     Ok(())
 }

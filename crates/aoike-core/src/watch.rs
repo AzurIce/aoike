@@ -4,11 +4,13 @@ use notify::{Config, Event, EventKind, RecommendedWatcher, RecursiveMode, Watche
 use tokio::sync::mpsc;
 
 use crate::stats::FileStats;
+use crate::task::TaskIndex;
 
 pub struct FileWatcher {
     _watcher: RecommendedWatcher,
     rx: mpsc::Receiver<notify::Result<Event>>,
     stats: FileStats,
+    task_index: TaskIndex,
     vault_path: PathBuf,
     ignore_patterns: Vec<String>,
 }
@@ -17,6 +19,7 @@ impl FileWatcher {
     pub fn new(
         vault_path: PathBuf,
         stats: FileStats,
+        task_index: TaskIndex,
         ignore_patterns: Vec<String>,
     ) -> anyhow::Result<Self> {
         let (tx, rx) = mpsc::channel(100);
@@ -34,6 +37,7 @@ impl FileWatcher {
             _watcher: watcher,
             rx,
             stats,
+            task_index,
             vault_path,
             ignore_patterns,
         })
@@ -61,6 +65,7 @@ impl FileWatcher {
                     if !self.should_ignore(path) {
                         tracing::debug!("File created: {:?}", path);
                         self.stats.add_file(path);
+                        self.update_tasks_for_file(path).await;
                     }
                 }
             }
@@ -68,11 +73,10 @@ impl FileWatcher {
                 for path in &event.paths {
                     if !self.should_ignore(path) {
                         tracing::debug!("File modified: {:?}", path);
-                        // For simplicity, we don't track modifications in stats
-                        // If it's a new file that didn't exist before, add it
                         if path.exists() && path.is_file() {
-                            // We could check if it's already counted, but for simplicity
-                            // we'll just note the modification
+                            // For stats, we don't need to do anything for modifications
+                            // But for tasks, we need to re-parse
+                            self.update_tasks_for_file(path).await;
                         }
                     }
                 }
@@ -82,10 +86,35 @@ impl FileWatcher {
                     if !self.should_ignore(path) {
                         tracing::debug!("File removed: {:?}", path);
                         self.stats.remove_file(path);
+                        self.task_index.remove_file(path);
                     }
                 }
             }
             _ => {}
+        }
+    }
+
+    async fn update_tasks_for_file(&self,
+        path: &Path,
+    ) {
+        // Only parse markdown files
+        if let Some(ext) = path.extension() {
+            if ext.to_string_lossy().to_lowercase() != "md" {
+                return;
+            }
+        } else {
+            return;
+        }
+        
+        // Read file content
+        match tokio::fs::read_to_string(path).await {
+            Ok(content) => {
+                self.task_index.scan_file(path, &content);
+                tracing::debug!("Updated tasks for {:?}", path);
+            }
+            Err(e) => {
+                tracing::warn!("Failed to read file {:?}: {}", path, e);
+            }
         }
     }
 
