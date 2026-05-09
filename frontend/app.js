@@ -172,7 +172,7 @@ function renderTaskList() {
         const checkbox = task.status === 'done' ? '✓' : '';
         const priorityClass = task.priority ? `task-priority-${task.priority}` : '';
         
-        const tagsHtml = task.tags.map(tag => 
+        const tagsHtml = (task.tags || []).map(tag => 
             `<span class="task-tag">#${tag}</span>`
         ).join('');
         
