@@ -134,16 +134,27 @@ async fn run_serve(
         let mut interval = tokio::time::interval(std::time::Duration::from_secs(5));
         loop {
             interval.tick().await;
-            stats_clone.print_stats();
+            let (counts, total) = stats_clone.get_stats();
+            let mut items: Vec<_> = counts.iter().collect();
+            items.sort_by(|a, b| b.1.cmp(a.1));
+            let ext_summary = items.iter()
+                .map(|(ext, count)| format!("{}: {}", ext, count))
+                .collect::<Vec<_>>()
+                .join(", ");
+            
             let (todo, done) = task_index_clone.get_stats();
-            let total = todo + done;
-            if let Some(info) = monitor_clone.get_info(total, todo, done) {
+            let total_tasks = todo + done;
+            
+            if let Some(info) = monitor_clone.get_info(total_tasks, todo, done) {
                 tracing::info!(
-                    "Tasks: {} todo, {} done | Memory: {:.1} MB ({:.1}%) | CPU: {:.1}%",
-                    todo, done, info.memory_mb, info.memory_percent, info.cpu_percent
+                    "Files: {} ({}) | Tasks: {} todo, {} done | Memory: {:.1} MB ({:.1}%) | CPU: {:.1}%",
+                    total, ext_summary, todo, done, info.memory_mb, info.memory_percent, info.cpu_percent
                 );
             } else {
-                tracing::info!("Tasks: {} todo, {} done", todo, done);
+                tracing::info!(
+                    "Files: {} ({}) | Tasks: {} todo, {} done",
+                    total, ext_summary, todo, done
+                );
             }
         }
     });
