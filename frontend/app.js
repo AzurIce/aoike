@@ -1,6 +1,7 @@
 let statsChart = null;
 let currentTasks = [];
 let currentTaskFilter = 'all';
+let currentTagFilter = null;
 
 // Stats functions
 async function fetchStats() {
@@ -132,7 +133,54 @@ function updateTasksUI(data) {
     document.getElementById('done-count').textContent = data.total_done;
     document.getElementById('completion-rate').textContent = completionRate;
     
+    renderTagCloud();
     renderTaskList();
+}
+
+function getAllTags() {
+    const tagCounts = new Map();
+    currentTasks.forEach(task => {
+        if (task.tags && Array.isArray(task.tags)) {
+            task.tags.forEach(tag => {
+                tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
+            });
+        }
+    });
+    return Array.from(tagCounts.entries())
+        .sort((a, b) => b[1] - a[1]);
+}
+
+function renderTagCloud() {
+    const container = document.getElementById('tag-cloud');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    const tags = getAllTags();
+    if (tags.length === 0) return;
+    
+    // Add "All Tags" button
+    const allBtn = document.createElement('div');
+    allBtn.className = `tag-cloud-item ${currentTagFilter === null ? 'active' : ''}`;
+    allBtn.textContent = 'All Tags';
+    allBtn.addEventListener('click', () => {
+        currentTagFilter = null;
+        renderTagCloud();
+        renderTaskList();
+    });
+    container.appendChild(allBtn);
+    
+    tags.forEach(([tag, count]) => {
+        const item = document.createElement('div');
+        item.className = `tag-cloud-item ${currentTagFilter === tag ? 'active' : ''}`;
+        item.innerHTML = `#${tag}<span class="count">${count}</span>`;
+        item.addEventListener('click', () => {
+            currentTagFilter = currentTagFilter === tag ? null : tag;
+            renderTagCloud();
+            renderTaskList();
+        });
+        container.appendChild(item);
+    });
 }
 
 function renderTaskList() {
@@ -154,9 +202,17 @@ function renderTaskList() {
     
     const filteredTasks = currentTasks.filter(task => {
         if (!task || !task.status) return false;
-        if (currentTaskFilter === 'all') return true;
-        if (currentTaskFilter === 'todo') return task.status === 'todo';
-        if (currentTaskFilter === 'done') return task.status === 'done';
+        
+        // Status filter
+        if (currentTaskFilter === 'todo' && task.status !== 'todo') return false;
+        if (currentTaskFilter === 'done' && task.status !== 'done') return false;
+        
+        // Tag filter
+        if (currentTagFilter !== null) {
+            const taskTags = task.tags || [];
+            if (!taskTags.includes(currentTagFilter)) return false;
+        }
+        
         return true;
     });
     

@@ -317,6 +317,46 @@
             font-family: monospace;
         }
 
+        .tag-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.375rem;
+            margin-bottom: 1rem;
+            padding: 0.5rem 0;
+        }
+
+        .tag-cloud-item {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.625rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .tag-cloud-item:hover {
+            border-color: var(--text-muted);
+            color: var(--text);
+        }
+
+        .tag-cloud-item.active {
+            background: var(--text);
+            color: var(--card);
+            border-color: var(--text);
+        }
+
+        .tag-cloud-item .count {
+            margin-left: 0.25rem;
+            font-size: 0.6875rem;
+            opacity: 0.7;
+        }
+
         .task-priority-high {
             color: #ef4444;
         }
@@ -437,6 +477,7 @@
                     <button class="filter-btn" data-filter="todo">To Do</button>
                     <button class="filter-btn" data-filter="done">Done</button>
                 </div>
+                <div class="tag-cloud" id="tag-cloud"></div>
                 <div class="task-list" id="task-list">
                 </div>
             </div>
