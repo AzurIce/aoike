@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aoike - Vault Statistics</title>
+    <link rel="stylesheet" href="/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Aoike Vault Statistics</h1>
+            <p class="subtitle">Real-time file type distribution</p>
+        </header>
+        
+        <main>
+            <div class="stats-grid">
+                <div class="stat-card total">
+                    <h3>Total Files</h3>
+                    <div class="stat-value" id="total-files">-</div>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="stats-chart"></canvas>
+            </div>
+            
+            <div class="stats-table-container">
+                <h2>File Types</h2>
+                <table id="stats-table">
+                    <thead>
+                        <tr>
+                            <th>Extension</th>
+                            <th>Count</th>
+                            <th>Percentage</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stats-tbody">
+                    </tbody>
+                </table>
+            </div>
+        </main>
+        
+        <footer>
+            <p>Powered by Aoike</p>
+        </footer>
+    </div>
+    
+    <script src="/app.js"></script>
+</body>
+</html>

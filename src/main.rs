@@ -1,3 +1,5 @@
+mod server;
+
 use std::path::PathBuf;
 
 use clap::{Parser, Subcommand};
@@ -91,8 +93,19 @@ async fn run_serve(
         config.watch.ignore.clone(),
     )?;
     
-    // Start watching
+    // Start HTTP server
+    let server_bind = config.server.bind.clone();
+    let stats_for_server = stats.clone();
+    let server_task = tokio::spawn(async move {
+        if let Err(e) = server::run_server(&server_bind,
+            stats_for_server
+        ).await {
+            tracing::error!("Server error: {}", e);
+        }
+    });
+    
     tracing::info!("Server is running. Press Ctrl+C to stop.");
+    tracing::info!("Open http://{} in your browser to view statistics", config.server.bind);
     
     // Set up interval to print stats periodically
     let stats_clone = stats.clone();
@@ -114,6 +127,7 @@ async fn run_serve(
         _ = tokio::signal::ctrl_c() => {
             tracing::info!("Received shutdown signal");
         }
+        _ = server_task => {}
         _ = stats_task => {}
         _ = watcher_task => {}
     }
