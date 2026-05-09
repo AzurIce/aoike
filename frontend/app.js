@@ -113,7 +113,8 @@ async function fetchTasks() {
         const response = await fetch('/api/tasks');
         if (!response.ok) throw new Error('Failed to fetch tasks');
         const data = await response.json();
-        currentTasks = data.tasks;
+        console.log('Fetched tasks:', data);
+        currentTasks = data.tasks || [];
         updateTasksUI(data);
     } catch (error) {
         console.error('Error fetching tasks:', error);
@@ -121,7 +122,7 @@ async function fetchTasks() {
 }
 
 function updateTasksUI(data) {
-    const total = data.total_todo + data.total_done;
+    const total = (data.total_todo || 0) + (data.total_done || 0);
     const completionRate = total > 0 
         ? ((data.total_done / total) * 100).toFixed(0) + '%'
         : '0%';
@@ -136,9 +137,23 @@ function updateTasksUI(data) {
 
 function renderTaskList() {
     const container = document.getElementById('task-list');
+    if (!container) {
+        console.error('task-list container not found');
+        return;
+    }
+    
     container.innerHTML = '';
     
+    console.log('Rendering tasks:', currentTasks);
+    
+    if (!Array.isArray(currentTasks)) {
+        console.error('currentTasks is not an array:', currentTasks);
+        container.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 2rem;">Error loading tasks</div>';
+        return;
+    }
+    
     const filteredTasks = currentTasks.filter(task => {
+        if (!task || !task.status) return false;
         if (currentTaskFilter === 'all') return true;
         if (currentTaskFilter === 'todo') return task.status === 'todo';
         if (currentTaskFilter === 'done') return task.status === 'done';
@@ -190,25 +205,29 @@ function escapeHtml(text) {
 }
 
 // Tab switching
-document.querySelectorAll('.tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-        
-        tab.classList.add('active');
-        document.getElementById(`${tab.dataset.tab}-tab`).classList.add('active');
+function setupTabs() {
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            
+            tab.classList.add('active');
+            document.getElementById(`${tab.dataset.tab}-tab`).classList.add('active');
+        });
     });
-});
+}
 
 // Task filter buttons
-document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        currentTaskFilter = btn.dataset.filter;
-        renderTaskList();
+function setupFilters() {
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentTaskFilter = btn.dataset.filter;
+            renderTaskList();
+        });
     });
-});
+}
 
 // SSE setup
 function setupSSE() {
@@ -242,7 +261,8 @@ function setupSSE() {
     tasksEventSource.onmessage = (event) => {
         try {
             const data = JSON.parse(event.data);
-            currentTasks = data.tasks;
+            console.log('SSE tasks update:', data);
+            currentTasks = data.tasks || [];
             updateTasksUI(data);
         } catch (error) {
             console.error('Error parsing tasks SSE data:', error);
@@ -256,11 +276,15 @@ function setupSSE() {
     };
 }
 
-// Initial load
-fetchStats();
-fetchTasks();
-
-setupSSE();
+// Initialize on DOM ready
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('App initialized');
+    setupTabs();
+    setupFilters();
+    fetchStats();
+    fetchTasks();
+    setupSSE();
+});
 
 // Handle window resize
 window.addEventListener('resize', () => {

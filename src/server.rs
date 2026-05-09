@@ -80,6 +80,13 @@ async fn get_tasks(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     let tasks = state.task_index.get_all_tasks();
     let (total_todo, total_done) = state.task_index.get_stats();
     
+    tracing::info!(
+        "GET /api/tasks: returning {} tasks ({} todo, {} done)",
+        tasks.len(),
+        total_todo,
+        total_done
+    );
+    
     Json(serde_json::json!({
         "tasks": tasks,
         "total_todo": total_todo,

@@ -18,6 +18,7 @@ pub struct Task {
     pub content: String,
     pub status: TaskStatus,
     pub line_number: usize,
+    #[serde(serialize_with = "serialize_path")]
     pub file_path: PathBuf,
     pub raw_text: String,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -26,6 +27,13 @@ pub struct Task {
     pub due_date: Option<String>,
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
     pub tags: Vec<String>,
+}
+
+fn serialize_path<S>(path: &PathBuf, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: serde::Serializer,
+{
+    serializer.serialize_str(&path.to_string_lossy())
 }
 
 #[derive(Debug, Clone, serde::Serialize)]
@@ -64,6 +72,11 @@ impl TaskIndex {
         content: &str,
     ) {
         let tasks = parse_tasks_from_content(file_path, content);
+        tracing::debug!(
+            "Scanned file {:?}: found {} tasks",
+            file_path,
+            tasks.len()
+        );
         
         let mut tasks_by_file = self.tasks_by_file.lock().unwrap();
         tasks_by_file.insert(file_path.to_path_buf(), tasks);
@@ -119,7 +132,17 @@ impl TaskIndex {
         &self,
     ) {
         let all_tasks = self.get_all_tasks();
-        let (total_todo, total_done) = self.get_stats();
+        let total_todo = all_tasks.iter()
+            .filter(|t| t.status == TaskStatus::Todo)
+            .count();
+        let total_done = all_tasks.iter()
+            .filter(|t| t.status == TaskStatus::Done)
+            .count();
+        
+        tracing::debug!(
+            "Broadcasting task update: {} todo, {} done, {} total",
+            total_todo, total_done, all_tasks.len()
+        );
         
         let update = TaskUpdate {
             tasks: all_tasks,
